@@ -487,7 +487,7 @@ window.Reports = {
           
           <table style="width: 100%; font-size: 10.5px; border-collapse: collapse; border: 1.5px solid #000; margin-bottom: 10px;">
             <thead>
-              <tr style="background: #f8fafc; color: #000; font-weight: 800; text-transform: uppercase; font-size: 9.5px; border-bottom: 1.5px solid #000;">
+              <tr style="color: #000; font-weight: 800; text-transform: uppercase; font-size: 9.5px; border-bottom: 1.5px solid #000;">
                 <th style="padding: 4px 2px; width: 8%; text-align: center; border-right: 1px solid #000;">#</th>
                 <th style="padding: 4px 4px; width: 44%; text-align: left; border-right: 1px solid #000;">Details</th>
                 <th style="padding: 4px 4px; width: 30%; text-align: left; border-right: 1px solid #000;">Medicines</th>

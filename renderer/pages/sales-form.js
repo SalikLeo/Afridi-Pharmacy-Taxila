@@ -1513,13 +1513,13 @@ window.SalesForm = {
 
       rowHtml += `
         <tr>
-          <td style="border: 1px solid #000; padding: 6px 3px; font-size: 11px; text-align: center; color: #000; font-weight: 600;">${rowIdx++}</td>
-          <td style="border: 1px solid #000; padding: 6px 6px; font-size: 12px; color: #000; font-weight: bold; line-height: 1.25;">
+          <td style="border: 1px solid #000; padding: 2.5px 2px; font-size: 11px; text-align: center; color: #000; font-weight: 600;">${rowIdx++}</td>
+          <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11.5px; color: #000; font-weight: bold; line-height: 1.2;">
             ${cleanName}
           </td>
-          <td style="border: 1px solid #000; padding: 6px 3px; font-size: 12px; text-align: center; color: #000; font-weight: bold;">${item.qty}</td>
-          <td style="border: 1px solid #000; padding: 6px 4px; font-size: 11.5px; text-align: right; color: #000;">${app.formatAmount(item.unit_discounted || item.unit_retail)}</td>
-          <td style="border: 1px solid #000; padding: 6px 4px; font-size: 12px; text-align: right; color: #000; font-weight: bold;">${app.formatAmount(item.line_retail)}</td>
+          <td style="border: 1px solid #000; padding: 2.5px 2px; font-size: 11.5px; text-align: center; color: #000; font-weight: bold;">${item.qty}</td>
+          <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11px; text-align: right; color: #000;">${app.formatAmount(item.unit_discounted || item.unit_retail)}</td>
+          <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11.5px; text-align: right; color: #000; font-weight: bold;">${app.formatAmount(item.line_retail)}</td>
         </tr>
       `;
     });
@@ -1542,13 +1542,13 @@ window.SalesForm = {
       if (amt > 0 || (mb.name && mb.name.trim())) {
         rowHtml += `
           <tr>
-            <td style="border: 1px solid #000; padding: 6px 3px; font-size: 11px; text-align: center; color: #000; font-weight: 600;">${rowIdx++}</td>
-            <td style="border: 1px solid #000; padding: 6px 6px; font-size: 12px; color: #000; font-weight: bold; line-height: 1.25;">
+            <td style="border: 1px solid #000; padding: 2.5px 2px; font-size: 11px; text-align: center; color: #000; font-weight: 600;">${rowIdx++}</td>
+            <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11.5px; color: #000; font-weight: bold; line-height: 1.2;">
               ${mb.name || 'Service'}
             </td>
-            <td style="border: 1px solid #000; padding: 6px 3px; font-size: 12px; text-align: center; color: #000; font-weight: bold;">1</td>
-            <td style="border: 1px solid #000; padding: 6px 4px; font-size: 11.5px; text-align: right; color: #000;">${app.formatAmount(amt)}</td>
-            <td style="border: 1px solid #000; padding: 6px 4px; font-size: 12px; text-align: right; color: #000; font-weight: bold;">${app.formatAmount(amt)}</td>
+            <td style="border: 1px solid #000; padding: 2.5px 2px; font-size: 11.5px; text-align: center; color: #000; font-weight: bold;">1</td>
+            <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11px; text-align: right; color: #000;">${app.formatAmount(amt)}</td>
+            <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11.5px; text-align: right; color: #000; font-weight: bold;">${app.formatAmount(amt)}</td>
           </tr>
         `;
       }
@@ -1571,7 +1571,7 @@ window.SalesForm = {
         </div>
         
         <!-- Metadata -->
-        <div style="font-size: 11px; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 8px; line-height: 1.55;">
+        <div style="font-size: 11px; margin-bottom: 8px; border-bottom: 1px dashed #000; padding-bottom: 6px; line-height: 1.55;">
           <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Inv #:</span> <span style="font-weight: 900; font-size: 12px;">${data.proposal_number}</span></div>
           <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Date & Time:</span> <span>${app.formatDateTime(data.date)}</span></div>
           ${data.customer_name && !data.customer_name.startsWith('Walk-in') ? `<div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Patient:</span> <span style="font-weight: bold;">${data.customer_name}</span></div>` : ''}
@@ -1579,14 +1579,14 @@ window.SalesForm = {
         </div>
 
         <!-- Items Bordered Table -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; border: 1.5px solid #000; color: #000;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; border: 1.5px solid #000; color: #000;">
           <thead>
-            <tr style="border-bottom: 1.5px solid #000; background: #f8fafc;">
-              <th style="border: 1px solid #000; padding: 4px 2px; font-size: 10.5px; font-weight: 800; text-align: center; width: 7%;">#</th>
-              <th style="border: 1px solid #000; padding: 4px 5px; font-size: 11px; font-weight: 800; text-align: left; width: 49%;">Item / Description</th>
-              <th style="border: 1px solid #000; padding: 4px 2px; font-size: 11px; font-weight: 800; text-align: center; width: 12%;">Qty</th>
-              <th style="border: 1px solid #000; padding: 4px 4px; font-size: 11px; font-weight: 800; text-align: right; width: 16%;">Price</th>
-              <th style="border: 1px solid #000; padding: 4px 4px; font-size: 11px; font-weight: 800; text-align: right; width: 16%;">Total</th>
+            <tr style="border-bottom: 1.5px solid #000;">
+              <th style="border: 1px solid #000; padding: 3px 2px; font-size: 10.5px; font-weight: 800; text-align: center; width: 7%;">#</th>
+              <th style="border: 1px solid #000; padding: 3px 4px; font-size: 11px; font-weight: 800; text-align: left; width: 49%;">Item / Description</th>
+              <th style="border: 1px solid #000; padding: 3px 2px; font-size: 11px; font-weight: 800; text-align: center; width: 12%;">Qty</th>
+              <th style="border: 1px solid #000; padding: 3px 4px; font-size: 11px; font-weight: 800; text-align: right; width: 16%;">Price</th>
+              <th style="border: 1px solid #000; padding: 3px 4px; font-size: 11px; font-weight: 800; text-align: right; width: 16%;">Total</th>
             </tr>
           </thead>
           <tbody>

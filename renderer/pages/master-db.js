@@ -1687,7 +1687,7 @@ const MasterDB = {
           <!-- 4-Column Table -->
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; border: 1.5px solid #000; color: #000;">
             <thead>
-              <tr style="border-bottom: 1.5px solid #000; background: #f8fafc;">
+              <tr style="border-bottom: 1.5px solid #000;">
                 <th style="padding: 4px 2px; text-align: center; width: 8%; border-right: 1px solid #000; font-weight: 800; font-size: 10px; text-transform: uppercase; color: #000;">#</th>
                 <th style="padding: 4px 4px; text-align: left; width: 50%; border-right: 1px solid #000; font-weight: 800; font-size: 10px; text-transform: uppercase; color: #000;">Name</th>
                 <th style="padding: 4px 3px; text-align: center; width: 26%; border-right: 1px solid #000; font-weight: 800; font-size: 10px; text-transform: uppercase; color: #000;">Expiry</th>
@@ -1699,7 +1699,7 @@ const MasterDB = {
             </tbody>
             ${rows.length > 0 ? `
             <tfoot>
-              <tr style="border-top: 1.5px solid #000; font-weight: 900; background: #f8fafc;">
+              <tr style="border-top: 1.5px solid #000; font-weight: 900;">
                 <td colspan="2" style="padding: 5px 4px; border-right: 1px solid #000; text-align: right; font-size: 10px; text-transform: uppercase; color: #000;">
                   Total Items: <span style="font-size: 11px;">${countDisplay}</span>
                 </td>

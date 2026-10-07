@@ -580,7 +580,7 @@ const Expenses = {
             <!-- Expenses Table -->
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; border: 1.5px solid #000; color: #000;">
                 <thead>
-                    <tr style="border-bottom: 1.5px solid #000; background: #f8fafc;">
+                    <tr style="border-bottom: 1.5px solid #000;">
                         <th style="border: 1px solid #000; padding: 4px 2px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; width: 8%;">#</th>
                         <th style="border: 1px solid #000; padding: 4px 5px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: left; width: 62%;">Expense Details</th>
                         <th style="border: 1px solid #000; padding: 4px 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: right; width: 30%;">Amount</th>
@@ -618,7 +618,7 @@ const Expenses = {
 
             ${(catKeys.length > 1 && list.length > 1) ? `
             <div style="margin-top: 8px; border: 1.5px solid #000; border-radius: 4px; overflow: hidden; background: #fff;">
-                <div style="padding: 4px 6px; font-weight: 800; background: #f8fafc; border-bottom: 1px solid #000; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">CATEGORY BREAKDOWN</div>
+                <div style="padding: 4px 6px; font-weight: 800; background: #fff; border-bottom: 1px solid #000; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">CATEGORY BREAKDOWN</div>
                 <table style="width: 100%; font-size: 10.5px; border-collapse: collapse; line-height: 1.5;">
                     ${catKeys.map(catName => `
                         <tr style="border-bottom: 1px solid #000;">
