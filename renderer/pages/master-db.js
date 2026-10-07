@@ -136,6 +136,7 @@ const MasterDB = {
                   <th class="px-2 py-2 text-right border-r border-slate-200 text-rose-700 bg-rose-50/40">TP (Cost)</th>
                   <th class="px-2 py-2 text-right border-r border-slate-200 text-emerald-700 bg-emerald-50/40">MRP (Retail)</th>
                   <th class="px-2 py-2 text-right border-r border-slate-200 text-teal-700 bg-teal-50/40">Margin</th>
+                  <th class="px-2 py-2 text-right border-r border-slate-200 text-indigo-900 bg-indigo-50/40 whitespace-nowrap">Value (Cost × Stock)</th>
                   <th class="px-2 py-2 text-right">Actions</th>
                 </tr>
               </thead>
@@ -513,7 +514,7 @@ const MasterDB = {
 
     const tbody = document.getElementById('db-tbody');
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="12" class="px-4 py-8 text-center text-slate-400 font-medium text-xs"><div class="flex items-center justify-center gap-2"><div class="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div> Loading medicines...</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="13" class="px-4 py-8 text-center text-slate-400 font-medium text-xs"><div class="flex items-center justify-center gap-2"><div class="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div> Loading medicines...</div></td></tr>`;
     }
 
     try {
@@ -540,7 +541,7 @@ const MasterDB = {
     } catch(err) {
       console.error('Failed to fetch paginated products:', err);
       if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="12" class="px-4 py-8 text-center text-rose-500 font-medium text-xs">Error loading data. Please try again.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="13" class="px-4 py-8 text-center text-rose-500 font-medium text-xs">Error loading data. Please try again.</td></tr>`;
       }
     }
   },
@@ -688,7 +689,7 @@ const MasterDB = {
     if (!tbody) return;
 
     if (!list || list.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="12" class="px-4 py-8 text-center text-slate-400 italic font-medium text-xs">No medicines found matching your search.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="13" class="px-4 py-8 text-center text-slate-400 italic font-medium text-xs">No medicines found matching your search.</td></tr>`;
       return;
     }
 
@@ -700,6 +701,8 @@ const MasterDB = {
       const rp = p.retail_price || 0;
       const profit = rp - tp;
       const margin = rp > 0 ? ((profit / rp) * 100).toFixed(1) : 0;
+      const currentStock = p.current_stock || 0;
+      const stockVal = currentStock * tp;
       const displayName = p.medicine_name || p.item_name || 'Unnamed Medicine';
       const brandName = p.brand_name || '';
       
@@ -773,6 +776,11 @@ const MasterDB = {
           <!-- Profit Margin -->
           <td class="px-2 py-1.5 border-r border-slate-100 text-right font-display font-bold text-teal-800 text-[11px] tabular-nums">
             +${app.formatNumber(profit)} <span class="text-[9.5px] text-slate-400">(${margin}%)</span>
+          </td>
+
+          <!-- Value (Cost x Stock) -->
+          <td class="px-2 py-1.5 border-r border-slate-100 text-right font-display font-black text-indigo-950 text-[11.5px] tabular-nums">
+            Rs. ${app.formatNumber(stockVal)}
           </td>
 
           <!-- Actions -->
