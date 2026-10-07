@@ -1,5 +1,6 @@
 window.SalesForm = {
   cart: [],
+  moreBillItems: [],
   settings: {},
   discountType: 'flat',
   taxType: 'percent',
@@ -12,6 +13,19 @@ window.SalesForm = {
   selectedSearchIndex: 0,
   _searchTimer: null,
   clockInterval: null,
+
+  getCleanMoreBillItems() {
+    return (this.moreBillItems || [])
+      .filter(i => (i && ((i.name && i.name.trim()) || (i.amount !== '' && parseFloat(i.amount) > 0))))
+      .map(i => ({
+        name: (i.name || 'Service').trim(),
+        amount: parseFloat(i.amount) || 0
+      }));
+  },
+
+  getMoreBillTotal() {
+    return this.getCleanMoreBillItems().reduce((sum, item) => sum + item.amount, 0);
+  },
 
   async render(container, args) {
     this.discountType = 'flat';
@@ -94,6 +108,18 @@ window.SalesForm = {
         this.fees = sale.fees || 0;
         this.feesName = sale.fees_name || '';
 
+        this.moreBillItems = [];
+        if (sale.more_bill_items) {
+          try {
+            this.moreBillItems = typeof sale.more_bill_items === 'string' ? JSON.parse(sale.more_bill_items) : sale.more_bill_items;
+          } catch (e) {
+            this.moreBillItems = [];
+          }
+        }
+        if ((!this.moreBillItems || this.moreBillItems.length === 0) && (sale.fees > 0)) {
+          this.moreBillItems = [{ name: sale.fees_name || 'Checkup Fees', amount: sale.fees }];
+        }
+
         if (sale.tax_rate !== undefined && sale.tax_rate !== null && Number(sale.tax_rate) > 0) {
           this.taxType = 'percent';
           this.taxVal = Number(sale.tax_rate);
@@ -121,6 +147,7 @@ window.SalesForm = {
       this.customerPhone = '';
       this.fees = 0;
       this.feesName = '';
+      this.moreBillItems = [];
       this.saleNumber = await window.api.getNextProposalNumber();
 
       const savedDisc = window.storage.get('pos_saved_disc_val');
@@ -253,12 +280,14 @@ window.SalesForm = {
                 <span id="sf-items-count-badge" class="font-black text-slate-800">0 items (0 units)</span>
               </div>
 
-              <!-- Extra / Checkup Fees -->
-              <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-xl">
-                <input type="text" id="sf-fees-name" placeholder="Checkup Fees" value="${this.feesName || ''}" oninput="SalesForm.feesName = this.value" class="w-24 px-1 py-0.5 bg-white border border-slate-200 rounded text-xs font-bold text-slate-800 outline-none">
-                <span class="text-slate-400 text-xs">Rs.</span>
-                <input type="number" id="sf-fees" step="1" min="0" placeholder="0" oninput="SalesForm.updateSummary()" value="${this.fees ? Math.round(this.fees) : ''}" class="w-16 px-1.5 py-0.5 bg-white border border-slate-200 rounded text-xs font-black text-slate-800 outline-none text-right">
-              </div>
+              <!-- More Bill Button with Dynamic Badge -->
+              <button type="button" onclick="SalesForm.openMoreBillModal()" id="sf-more-bill-btn" class="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-xl transition-all text-xs font-black text-slate-700 cursor-pointer shadow-2xs active:scale-95" title="Add extra bill items (Checkup Fees, X-Ray, Tests, etc.)">
+                <i data-lucide="receipt-text" class="w-3.5 h-3.5 text-teal-600"></i>
+                <span>More Bill</span>
+                <span id="sf-more-bill-badge" class="${this.getMoreBillTotal() > 0 ? 'inline-flex' : 'hidden'} items-center px-1.5 py-0.5 rounded-full text-[10px] font-black bg-teal-600 text-white leading-none">
+                  Rs. ${app.formatNumber(this.getMoreBillTotal())}
+                </span>
+              </button>
 
               <!-- Payment Channel Toggle (Cash / Online) -->
               <div class="inline-flex bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-black">
@@ -363,6 +392,72 @@ window.SalesForm = {
               </div>
             </div>
           </div>
+        <!-- MORE BILL MODAL -->
+        <div id="more-bill-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+          <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-150">
+            <!-- Modal Header -->
+            <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold">
+                  <i data-lucide="receipt-text" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="font-black text-sm tracking-wide text-white">More Bill / Extra Charges</h3>
+                  <p class="text-[11px] text-slate-400 font-medium">Add clinical services, X-Ray, checkup fees, lab tests, etc.</p>
+                </div>
+              </div>
+              <button type="button" onclick="SalesForm.closeMoreBillModal()" class="w-7 h-7 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Modal Quick Suggestions -->
+            <div class="px-5 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-1.5 flex-wrap">
+              <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 mr-1">Quick Add:</span>
+              <button type="button" onclick="SalesForm.addMoreBillSuggestion('Checkup Fees', 300)" class="px-2 py-0.5 rounded-lg bg-white border border-slate-200 hover:border-teal-500 hover:text-teal-700 text-[11px] font-bold text-slate-700 cursor-pointer transition-all shadow-2xs">
+                + Checkup Fees (300)
+              </button>
+              <button type="button" onclick="SalesForm.addMoreBillSuggestion('X-Ray', 2000)" class="px-2 py-0.5 rounded-lg bg-white border border-slate-200 hover:border-teal-500 hover:text-teal-700 text-[11px] font-bold text-slate-700 cursor-pointer transition-all shadow-2xs">
+                + X-Ray (2000)
+              </button>
+              <button type="button" onclick="SalesForm.addMoreBillSuggestion('Lab Tests', 2500)" class="px-2 py-0.5 rounded-lg bg-white border border-slate-200 hover:border-teal-500 hover:text-teal-700 text-[11px] font-bold text-slate-700 cursor-pointer transition-all shadow-2xs">
+                + Lab Tests (2500)
+              </button>
+              <button type="button" onclick="SalesForm.addMoreBillSuggestion('Ultrasound', 1500)" class="px-2 py-0.5 rounded-lg bg-white border border-slate-200 hover:border-teal-500 hover:text-teal-700 text-[11px] font-bold text-slate-700 cursor-pointer transition-all shadow-2xs">
+                + Ultrasound (1500)
+              </button>
+            </div>
+
+            <!-- Modal Table / List Body -->
+            <div class="p-5 overflow-y-auto flex-1 space-y-2.5 max-h-[380px]">
+              <div id="more-bill-rows-container" class="space-y-2">
+                <!-- Rows dynamically injected here -->
+              </div>
+
+              <div class="pt-2">
+                <button type="button" onclick="SalesForm.addMoreBillRow()" class="w-full py-2.5 border-2 border-dashed border-teal-300 hover:border-teal-500 hover:bg-teal-50/50 text-teal-700 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                  <span>Add Another Item</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black text-slate-500 uppercase">Total:</span>
+                <span id="more-bill-modal-total" class="text-base font-black text-teal-700 font-display tabular-nums">Rs. 0</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="SalesForm.clearAllMoreBillRows()" class="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-200 text-slate-600 font-bold text-xs transition-colors cursor-pointer">
+                  Clear All
+                </button>
+                <button type="button" onclick="SalesForm.saveMoreBillModal()" class="px-4 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-black text-xs transition-all shadow-sm active:scale-95 cursor-pointer">
+                  Done & Apply
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -431,8 +526,13 @@ window.SalesForm = {
         return;
       }
 
-      // Esc: close dropdown and focus search
+      // Esc: close more bill modal or close dropdown and focus search
       if (e.key === 'Escape') {
+        const modal = document.getElementById('more-bill-modal');
+        if (modal && !modal.classList.contains('hidden')) {
+          this.closeMoreBillModal();
+          return;
+        }
         this.closeSearchDropdown();
         const searchInput = document.getElementById('sf-search');
         if (searchInput) searchInput.focus();
@@ -690,6 +790,7 @@ window.SalesForm = {
 
   clearCart() {
     this.cart = [];
+    this.moreBillItems = [];
     const cashInput = document.getElementById('sf-cash-received');
     if (cashInput) cashInput.value = '';
     const badgeEl = document.getElementById('sf-change-badge');
@@ -1094,8 +1195,18 @@ window.SalesForm = {
       }
     }
 
-    const feesInput = document.getElementById('sf-fees');
-    const fees = parseInt(feesInput?.value, 10) || 0;
+    const fees = this.getMoreBillTotal();
+    const moreBillBadge = document.getElementById('sf-more-bill-badge');
+    if (moreBillBadge) {
+      if (fees > 0) {
+        moreBillBadge.textContent = `Rs. ${app.formatNumber(fees)}`;
+        moreBillBadge.classList.remove('hidden');
+        moreBillBadge.classList.add('inline-flex');
+      } else {
+        moreBillBadge.classList.add('hidden');
+        moreBillBadge.classList.remove('inline-flex');
+      }
+    }
 
     const grandTotal = Math.max(0, discountedTotal + fees + taxAmount);
     this.currentGrandTotal = grandTotal;
@@ -1160,12 +1271,12 @@ window.SalesForm = {
   },
 
   async completeSale(shouldPrint = true) {
-    const fees = parseInt(document.getElementById('sf-fees')?.value, 10) || 0;
-    const feesNameInput = document.getElementById('sf-fees-name')?.value?.trim();
-    const feesName = fees > 0 ? (feesNameInput || 'Checkup Fees') : '';
+    const cleanMoreBill = this.getCleanMoreBillItems();
+    const fees = this.getMoreBillTotal();
+    const feesName = cleanMoreBill.map(i => i.name).join(', ') || (fees > 0 ? 'More Bill Services' : '');
 
-    if (this.cart.length === 0 && fees <= 0) {
-      return app.showAlert("Cart is empty! Please search and add medicines to create a bill.");
+    if (this.cart.length === 0 && cleanMoreBill.length === 0) {
+      return app.showAlert("Cart is empty! Please search and add medicines or extra bill items.");
     }
 
     for (const item of this.cart) {
@@ -1271,6 +1382,7 @@ window.SalesForm = {
       tax_rate: taxRate,
       fees: fees,
       fees_name: feesName,
+      more_bill_items: JSON.stringify(cleanMoreBill),
       payment_method: this.paymentMethod,
       sale_mode: app.saleMode || 'retail',
       items: items
@@ -1331,11 +1443,22 @@ window.SalesForm = {
           <span>Medicines:</span>
           <span class="font-bold text-slate-900">${items.length} items (${items.reduce((s, i) => s + i.qty, 0)} units)</span>
         </div>` : ''}
-        ${fees > 0 ? `
+        ${cleanMoreBill.length > 0 ? `
+        <div class="flex justify-between items-center text-slate-600">
+          <span>More Bill (${cleanMoreBill.length} item${cleanMoreBill.length > 1 ? 's' : ''}):</span>
+          <span class="font-bold text-slate-900">${app.formatCurrency(fees)}</span>
+        </div>
+        ${cleanMoreBill.map(mb => `
+          <div class="flex justify-between items-center text-[11px] text-slate-500 pl-2">
+            <span>• ${mb.name}:</span>
+            <span class="font-semibold text-slate-700">${app.formatCurrency(mb.amount)}</span>
+          </div>
+        `).join('')}
+        ` : (fees > 0 ? `
         <div class="flex justify-between items-center text-slate-600">
           <span>${feesName || 'Checkup Fees'}:</span>
           <span class="font-bold text-slate-900">${app.formatCurrency(fees)}</span>
-        </div>` : ''}
+        </div>` : '')}
         ${taxAmount > 0 ? `
         <div class="flex justify-between items-center text-slate-600">
           <span>Tax / GST ${taxRate > 0 ? `(${taxRate}%)` : ''}:</span>
@@ -1367,21 +1490,7 @@ window.SalesForm = {
     let rowIdx = 1;
     let rowHtml = '';
 
-    if (data.fees && data.fees > 0) {
-      const feeName = data.fees_name || 'Checkup Fees';
-      rowHtml += `
-        <tr>
-          <td style="border: 1px solid #000; padding: 6px 3px; font-size: 11px; text-align: center; color: #000; font-weight: 600;">${rowIdx++}</td>
-          <td style="border: 1px solid #000; padding: 6px 6px; font-size: 12px; color: #000; font-weight: bold; line-height: 1.25;">
-            ${feeName}
-          </td>
-          <td style="border: 1px solid #000; padding: 6px 3px; font-size: 12px; text-align: center; color: #000; font-weight: bold;">1</td>
-          <td style="border: 1px solid #000; padding: 6px 4px; font-size: 11.5px; text-align: right; color: #000;">${app.formatAmount(data.fees)}</td>
-          <td style="border: 1px solid #000; padding: 6px 4px; font-size: 12px; text-align: right; color: #000; font-weight: bold;">${app.formatAmount(data.fees)}</td>
-        </tr>
-      `;
-    }
-
+    // 1. Medicines List (rendered first)
     (data.items || []).forEach(item => {
       const rawName = item.item_name || (item.description ? item.description.split(' - ')[0] : '');
       const cleanName = rawName.replace(/\s*\([^)]*\)\s*$/, '').trim();
@@ -1399,7 +1508,38 @@ window.SalesForm = {
       `;
     });
 
-    const grossTotal = (data.items || []).reduce((s, i) => s + (i.qty * (i.unit_retail || 0)), 0) + (data.fees || 0);
+    // 2. More Bill items (rendered after medicines list)
+    let moreBillList = [];
+    if (data.more_bill_items) {
+      try {
+        moreBillList = typeof data.more_bill_items === 'string' ? JSON.parse(data.more_bill_items) : data.more_bill_items;
+      } catch (e) {
+        moreBillList = [];
+      }
+    }
+    if ((!moreBillList || moreBillList.length === 0) && (data.fees && data.fees > 0)) {
+      moreBillList = [{ name: data.fees_name || 'Checkup Fees', amount: data.fees }];
+    }
+
+    (moreBillList || []).forEach(mb => {
+      const amt = parseFloat(mb.amount) || 0;
+      if (amt > 0 || (mb.name && mb.name.trim())) {
+        rowHtml += `
+          <tr>
+            <td style="border: 1px solid #000; padding: 6px 3px; font-size: 11px; text-align: center; color: #000; font-weight: 600;">${rowIdx++}</td>
+            <td style="border: 1px solid #000; padding: 6px 6px; font-size: 12px; color: #000; font-weight: bold; line-height: 1.25;">
+              ${mb.name || 'Service'}
+            </td>
+            <td style="border: 1px solid #000; padding: 6px 3px; font-size: 12px; text-align: center; color: #000; font-weight: bold;">1</td>
+            <td style="border: 1px solid #000; padding: 6px 4px; font-size: 11.5px; text-align: right; color: #000;">${app.formatAmount(amt)}</td>
+            <td style="border: 1px solid #000; padding: 6px 4px; font-size: 12px; text-align: right; color: #000; font-weight: bold;">${app.formatAmount(amt)}</td>
+          </tr>
+        `;
+      }
+    });
+
+    const moreBillSum = (moreBillList || []).reduce((s, i) => s + (parseFloat(i.amount) || 0), 0) || (data.fees || 0);
+    const grossTotal = (data.items || []).reduce((s, i) => s + (i.qty * (i.unit_retail || 0)), 0) + moreBillSum;
 
     const html = `
       <div class="receipt-80mm" style="width: 100%; max-width: 400px; margin: 0 auto; padding: 14px 16px; background: #fff; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #000; box-sizing: border-box; font-size: 12px; line-height: 1.45; border: 1px solid #ddd;">
@@ -1480,6 +1620,136 @@ window.SalesForm = {
     app.setPrintContent('receipt-print', html);
     if (previewEl) previewEl.innerHTML = html;
     return html;
+  },
+
+  // --- MORE BILL MODAL METHODS ---
+  openMoreBillModal() {
+    if (!this.moreBillItems || this.moreBillItems.length === 0) {
+      this.moreBillItems = [{ name: '', amount: '' }];
+    }
+    const modal = document.getElementById('more-bill-modal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      this.renderMoreBillRows();
+      setTimeout(() => {
+        const firstInput = document.getElementById('mb-item-name-0');
+        if (firstInput) firstInput.focus();
+      }, 50);
+      if (window.lucide) lucide.createIcons();
+    }
+  },
+
+  closeMoreBillModal() {
+    const modal = document.getElementById('more-bill-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+    // Clean up empty rows
+    if (this.moreBillItems && this.moreBillItems.length > 0) {
+      const cleaned = this.moreBillItems.filter(i => (i.name && i.name.trim()) || (i.amount !== '' && parseFloat(i.amount) > 0));
+      this.moreBillItems = cleaned.length > 0 ? cleaned : [];
+    }
+    this.updateSummary();
+  },
+
+  renderMoreBillRows() {
+    const container = document.getElementById('more-bill-rows-container');
+    if (!container) return;
+
+    if (!this.moreBillItems || this.moreBillItems.length === 0) {
+      this.moreBillItems = [{ name: '', amount: '' }];
+    }
+
+    container.innerHTML = this.moreBillItems.map((item, idx) => `
+      <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors">
+        <span class="w-6 text-center font-black text-slate-400 text-xs tabular-nums">${idx + 1}</span>
+        <input type="text"
+               id="mb-item-name-${idx}"
+               value="${(item.name || '').replace(/"/g, '&quot;')}"
+               placeholder="Item / Service Name (e.g. X-Ray, Checkup)"
+               oninput="SalesForm.updateMoreBillRowName(${idx}, this.value)"
+               class="flex-1 px-3 py-1.5 bg-white border border-slate-200 focus:border-teal-500 rounded-lg text-xs font-bold text-slate-800 outline-none">
+        <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 focus-within:border-teal-500">
+          <span class="text-slate-400 text-xs font-bold">Rs.</span>
+          <input type="number"
+                 id="mb-item-amount-${idx}"
+                 value="${item.amount !== undefined && item.amount !== '' ? item.amount : ''}"
+                 placeholder="0"
+                 min="0"
+                 step="1"
+                 oninput="SalesForm.updateMoreBillRowAmount(${idx}, this.value)"
+                 class="w-24 bg-transparent text-xs font-black text-slate-900 outline-none text-right tabular-nums">
+        </div>
+        <button type="button" onclick="SalesForm.removeMoreBillRow(${idx})" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors cursor-pointer" title="Remove item">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      </div>
+    `).join('');
+
+    const totalEl = document.getElementById('more-bill-modal-total');
+    if (totalEl) {
+      totalEl.textContent = `Rs. ${app.formatNumber(this.getMoreBillTotal())}`;
+    }
+
+    if (window.lucide) lucide.createIcons();
+  },
+
+  addMoreBillRow(name = '', amount = '') {
+    if (!this.moreBillItems) this.moreBillItems = [];
+    this.moreBillItems.push({ name, amount });
+    this.renderMoreBillRows();
+    setTimeout(() => {
+      const input = document.getElementById(`mb-item-name-${this.moreBillItems.length - 1}`);
+      if (input) input.focus();
+    }, 50);
+  },
+
+  removeMoreBillRow(idx) {
+    if (!this.moreBillItems) return;
+    this.moreBillItems.splice(idx, 1);
+    if (this.moreBillItems.length === 0) {
+      this.moreBillItems = [{ name: '', amount: '' }];
+    }
+    this.renderMoreBillRows();
+    this.updateSummary();
+  },
+
+  addMoreBillSuggestion(name, amount) {
+    if (!this.moreBillItems) this.moreBillItems = [];
+    if (this.moreBillItems.length === 1 && !this.moreBillItems[0].name && (this.moreBillItems[0].amount === '' || !this.moreBillItems[0].amount)) {
+      this.moreBillItems[0] = { name, amount };
+    } else {
+      this.moreBillItems.push({ name, amount });
+    }
+    this.renderMoreBillRows();
+    this.updateSummary();
+  },
+
+  updateMoreBillRowName(idx, val) {
+    if (this.moreBillItems && this.moreBillItems[idx]) {
+      this.moreBillItems[idx].name = val;
+    }
+  },
+
+  updateMoreBillRowAmount(idx, val) {
+    if (this.moreBillItems && this.moreBillItems[idx]) {
+      this.moreBillItems[idx].amount = val === '' ? '' : (parseFloat(val) || 0);
+    }
+    const totalEl = document.getElementById('more-bill-modal-total');
+    if (totalEl) {
+      totalEl.textContent = `Rs. ${app.formatNumber(this.getMoreBillTotal())}`;
+    }
+    this.updateSummary();
+  },
+
+  clearAllMoreBillRows() {
+    this.moreBillItems = [{ name: '', amount: '' }];
+    this.renderMoreBillRows();
+    this.updateSummary();
+  },
+
+  saveMoreBillModal() {
+    this.closeMoreBillModal();
   },
 
   onCustomerInput(val, initial = false) {

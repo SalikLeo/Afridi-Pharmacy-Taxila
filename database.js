@@ -276,6 +276,7 @@ function createTables() {
     { name: 'tax_rate', type: 'REAL DEFAULT 0' },
     { name: 'fees', type: 'REAL DEFAULT 0' },
     { name: 'fees_name', type: 'TEXT' },
+    { name: 'more_bill_items', type: 'TEXT' },
     { name: 'seller_name', type: 'TEXT' },
     { name: 'payment_method', type: "TEXT DEFAULT 'Cash'" },
     { name: 'sale_mode', type: "TEXT DEFAULT 'retail'" },
