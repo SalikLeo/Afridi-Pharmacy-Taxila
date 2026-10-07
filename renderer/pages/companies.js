@@ -479,7 +479,7 @@ window.Companies = {
                               <span class="text-slate-500 font-bold uppercase tracking-widest text-[8px]">Paid Amount:</span>
                               <div class="relative w-28">
                                   <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[9px] font-bold">Rs.</span>
-                                  <input type="number" id="np-paid-amount" placeholder="0" min="0" oninput="Companies.calculateNewTxnTotal()" onchange="Companies.calculateNewTxnTotal()" class="w-full bg-white border border-slate-200 rounded-lg pl-7 pr-1.5 py-1 text-xs font-black focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all tabular-nums text-emerald-600 shadow-sm">
+                                  <input type="number" id="np-paid-amount" placeholder="0" min="0" oninput="Companies._paidAmountManuallyEdited = true; Companies.calculateNewTxnTotal();" onchange="Companies._paidAmountManuallyEdited = true; Companies.calculateNewTxnTotal();" class="w-full bg-white border border-slate-200 rounded-lg pl-7 pr-1.5 py-1 text-xs font-black focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all tabular-nums text-emerald-600 shadow-sm">
                               </div>
                           </div>
 
@@ -1840,6 +1840,7 @@ window.Companies = {
     
     this.editingTxn = null;
     this.editingCompanyId = null;
+    this._paidAmountManuallyEdited = false;
 
     // Reset form
     document.getElementById('new-purchase-form').reset();
@@ -1909,6 +1910,7 @@ window.Companies = {
     if (submitPrintText) submitPrintText.textContent = 'Complete & Print';
     const selectEl = document.getElementById('np-company-select');
     if (selectEl) selectEl.disabled = false;
+    this._paidAmountManuallyEdited = false;
   },
 
   addPurchaseRow() {
@@ -2182,6 +2184,10 @@ window.Companies = {
     const total = Math.max(0, subtotal - discount);
 
     const paidEl = document.getElementById('np-paid-amount');
+    if (!this._paidAmountManuallyEdited) {
+      if (paidEl) paidEl.value = total > 0 ? total : '';
+    }
+
     let paid = parseFloat(paidEl?.value) || 0;
     if (paid < 0) {
       paid = 0;
