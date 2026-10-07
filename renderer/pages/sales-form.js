@@ -252,8 +252,7 @@ window.SalesForm = {
                   <th class="px-2 py-2 text-center w-9 border-r border-slate-200">#</th>
                   <th class="px-3 py-2 border-r border-slate-200 min-w-[260px]">Item / Description</th>
                   <th class="px-2.5 py-2 border-r border-slate-200 text-center w-28">Strength</th>
-                  <th class="px-2 py-2 border-r border-slate-200 text-center w-24">Packing</th>
-                  <th class="px-2.5 py-2 border-r border-slate-200 text-right w-24">MRP (Rs.)</th>
+                  <th class="px-2.5 py-2 border-r border-slate-200 text-right w-24">Price</th>
                   <th class="px-2 py-2 border-r border-slate-200 text-center w-20 text-indigo-900 bg-indigo-50/40">Qty</th>
                   <th class="px-2 py-2 border-r border-slate-200 text-right w-20 text-rose-700 bg-rose-50/30">Disc (Rs.)</th>
                   <th class="px-3 py-2 border-r border-slate-200 text-right w-28 text-emerald-800 bg-emerald-50/40">Total (Rs.)</th>
@@ -932,7 +931,7 @@ window.SalesForm = {
     if (this.cart.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="9" class="px-4 py-16 text-center text-slate-300">
+          <td colspan="8" class="px-4 py-16 text-center text-slate-300">
             <div class="flex flex-col items-center justify-center gap-1.5 opacity-60">
               <i data-lucide="shopping-cart" class="w-10 h-10 text-slate-300"></i>
               <p class="font-black uppercase tracking-widest text-[11px] text-slate-400">Cart is empty</p>
@@ -975,12 +974,7 @@ window.SalesForm = {
             ${item.strength && item.dosage_form ? `<span class="block text-[10px] font-bold text-slate-500 mt-0.5">${item.dosage_form}</span>` : ''}
           </td>
 
-          <!-- 4: Packing -->
-          <td class="px-2 py-1.5 border-r border-slate-100 text-center text-slate-600 font-bold text-[10.5px]">
-            ${item.packing || item.unit || '-'}
-          </td>
-
-          <!-- 7: Editable MRP (Retail Price) -->
+          <!-- 4: Editable Price -->
           <td class="px-2 py-1 border-r border-slate-100 text-right">
             <input type="number" 
                    id="cart-price-${idx}" 
