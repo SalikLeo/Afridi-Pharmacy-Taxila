@@ -134,7 +134,7 @@ const MasterDB = {
                   <th class="px-2 py-2 text-right border-r border-slate-200 text-rose-700 bg-rose-50/40">TP (Cost)</th>
                   <th class="px-2 py-2 text-right border-r border-slate-200 text-emerald-700 bg-emerald-50/40">MRP (Retail)</th>
                   <th class="px-2 py-2 text-right border-r border-slate-200 text-teal-700 bg-teal-50/40">Margin</th>
-                  <th class="px-2 py-2 text-right border-r border-slate-200 text-indigo-900 bg-indigo-50/40 whitespace-nowrap">Value (Cost × Stock)</th>
+                  <th class="px-2 py-2 text-right border-r border-slate-200 text-indigo-900 bg-indigo-50/40" title="Cost × Stock">Value</th>
                   <th class="px-2 py-2 text-right">Actions</th>
                 </tr>
               </thead>
