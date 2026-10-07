@@ -250,7 +250,7 @@ window.SalesForm = {
               <thead class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase text-[10.5px] font-black tracking-wider sticky top-0 z-10 shadow-xs">
                 <tr>
                   <th class="px-2 py-2 text-center w-9 border-r border-slate-200">#</th>
-                  <th class="px-3 py-2 border-r border-slate-200 min-w-[260px]">Medicine / Brand Name & Generic Formula</th>
+                  <th class="px-3 py-2 border-r border-slate-200 min-w-[260px]">Item / Description</th>
                   <th class="px-2.5 py-2 border-r border-slate-200 text-center w-28">Dosage & Strength</th>
                   <th class="px-2 py-2 border-r border-slate-200 text-center w-24">Packing</th>
                   <th class="px-2.5 py-2 border-r border-slate-200 text-right w-24">MRP (Rs.)</th>
