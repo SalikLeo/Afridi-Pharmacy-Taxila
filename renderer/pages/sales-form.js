@@ -331,28 +331,8 @@ window.SalesForm = {
               </div>
             </div>
 
-            <!-- Right: Cash Calculator, Subtotal, Grand Total & Actions -->
+            <!-- Right: Subtotal, Grand Total & Actions -->
             <div class="flex items-center gap-3.5 flex-wrap sm:flex-nowrap w-full lg:w-auto justify-end">
-              <!-- Cash Received & Change Return Calculator -->
-              <div class="flex flex-col items-end justify-center shrink-0">
-                <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-xl focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-100 transition-all">
-                  <span class="text-slate-500 text-[10.5px] font-bold">Cash Rec.</span>
-                  <span class="text-[9px] font-black text-slate-400 bg-slate-200/80 px-1 py-0.2 rounded select-none cursor-pointer" onclick="document.getElementById('sf-cash-received')?.focus()" title="Press F4 to focus">F4</span>
-                  <span class="text-slate-400 text-xs font-bold">Rs.</span>
-                  <input type="number" 
-                         id="sf-cash-received" 
-                         placeholder="0" 
-                         min="0" 
-                         step="any"
-                         onfocus="this.select()"
-                         oninput="SalesForm.calculateChangeReturn()" 
-                         onkeydown="if(event.key === 'Enter') { event.preventDefault(); SalesForm.completeSale(true); }"
-                         class="w-20 px-1.5 py-0.5 bg-white border border-slate-200 rounded text-xs font-black text-slate-900 outline-none text-right tabular-nums">
-                </div>
-                <!-- Dynamic Change Return Badge (hidden when empty or 0) -->
-                <div id="sf-change-badge" class="mt-0.5 min-h-[16px] flex items-center justify-end text-[10px] font-black tabular-nums transition-all"></div>
-              </div>
-
               <!-- Bill Breakdown & Net Total -->
               <div class="text-right shrink-0">
                 <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center justify-end gap-2">
@@ -492,16 +472,6 @@ window.SalesForm = {
         return;
       }
 
-      // F4: focus Cash Received input
-      if (e.key === 'F4') {
-        e.preventDefault();
-        const cashInput = document.getElementById('sf-cash-received');
-        if (cashInput) {
-          cashInput.focus();
-          cashInput.select();
-        }
-        return;
-      }
 
       // F9 or Ctrl+Enter: Save & Print
       if (e.key === 'F9' || (e.ctrlKey && e.key === 'Enter')) {
@@ -782,10 +752,6 @@ window.SalesForm = {
   clearCart() {
     this.cart = [];
     this.moreBillItems = [];
-    const cashInput = document.getElementById('sf-cash-received');
-    if (cashInput) cashInput.value = '';
-    const badgeEl = document.getElementById('sf-change-badge');
-    if (badgeEl) badgeEl.innerHTML = '';
     this.renderCart();
     this.updateSummary();
     const searchInput = document.getElementById('sf-search');
@@ -1214,51 +1180,6 @@ window.SalesForm = {
     const grandTotalEl = document.getElementById('sf-grand-total');
     if (grandTotalEl) grandTotalEl.textContent = app.formatCurrency(grandTotal);
 
-    this.calculateChangeReturn();
-  },
-
-  calculateChangeReturn() {
-    const badgeEl = document.getElementById('sf-change-badge');
-    const cashInput = document.getElementById('sf-cash-received');
-    if (!badgeEl) return;
-
-    if (!cashInput || !cashInput.value.trim()) {
-      badgeEl.innerHTML = '';
-      return;
-    }
-
-    const cashVal = parseFloat(cashInput.value);
-    if (isNaN(cashVal) || cashVal <= 0) {
-      badgeEl.innerHTML = '';
-      return;
-    }
-
-    const total = this.currentGrandTotal !== undefined ? this.currentGrandTotal : 0;
-    const diff = Math.round((cashVal - total) * 100) / 100;
-
-    if (diff > 0.001) {
-      // Cash > Total: Return in green
-      badgeEl.innerHTML = `
-        <span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-black tracking-tight">
-          <span>Return:</span> <span class="font-display">Rs. ${app.formatNumber(diff)}</span>
-        </span>
-      `;
-    } else if (Math.abs(diff) <= 0.001) {
-      // Cash == Total: Exact Cash in slate
-      badgeEl.innerHTML = `
-        <span class="inline-flex items-center px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-black tracking-tight">
-          Exact Cash
-        </span>
-      `;
-    } else {
-      // Cash < Total: Remaining / Short in amber/rose
-      const shortAmount = Math.abs(diff);
-      badgeEl.innerHTML = `
-        <span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-rose-50 text-rose-700 border border-rose-200 font-black tracking-tight">
-          <span>Remaining / Short:</span> <span class="font-display">Rs. ${app.formatNumber(shortAmount)}</span>
-        </span>
-      `;
-    }
   },
 
   async completeSale(shouldPrint = true) {
@@ -1353,9 +1274,6 @@ window.SalesForm = {
     const grandTotal = Math.max(0, discountedTotal + fees + taxAmount);
     const totalProfit = grandTotal - totalCost;
 
-    const cashReceivedVal = parseFloat(document.getElementById('sf-cash-received')?.value) || 0;
-    const changeReturnVal = cashReceivedVal > grandTotal ? Math.round((cashReceivedVal - grandTotal) * 100) / 100 : 0;
-
     const saleData = {
       proposal_number: currentSaleNo,
       customer_name: finalName,
@@ -1366,8 +1284,8 @@ window.SalesForm = {
       profit: totalProfit,
       status: 'Paid',
       received_amount: grandTotal,
-      cash_received: cashReceivedVal,
-      change_return: changeReturnVal,
+      cash_received: 0,
+      change_return: 0,
       discount: totalDiscount,
       tax: taxAmount,
       tax_rate: taxRate,
