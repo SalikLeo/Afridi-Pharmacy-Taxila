@@ -85,7 +85,7 @@ const app = {
     }
 
     const baseName = settings.company_name || 'Afridi Diagnostic Centre';
-    document.title = `${baseName} - POS - Contact for more info: 0333-9109092`;
+    document.title = `${baseName} - POS - Contact for more info: 0309-5369472`;
   },
 
   navigate(page, args) {

@@ -51,7 +51,7 @@ function createWindow() {
   const s = db.getSettings() || {};
   const companyName = s.company_name || 'Afridi Diagnostic Centre';
   mainWindow = new BrowserWindow({
-    title: `${companyName} - POS - Contact for more info: 0333-9109092`,
+    title: `${companyName} - POS - Contact for more info: 0309-5369472`,
     width: 1200,
     height: 800,
     icon: iconPath,
