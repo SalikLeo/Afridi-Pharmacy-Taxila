@@ -214,18 +214,19 @@ const MasterDB = {
 
       <!-- Add / Edit Medicine Modal -->
       <div id="db-modal" onclick="if(event.target === this) MasterDB.closeForm()" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[500] backdrop-blur-md transition-opacity opacity-0 no-print">
-        <div class="bg-white rounded-2xl shadow-2xl p-5 max-w-3xl w-full mx-4 transform transition-all scale-95 max-h-[92vh] overflow-y-auto custom-scrollbar" id="db-card">
-          <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-3">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl w-full mx-4 transform transition-all scale-95 max-h-[92vh] overflow-y-auto custom-scrollbar" id="db-card">
+          <!-- Header -->
+          <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
             <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
-                <i data-lucide="pill" class="w-4 h-4"></i>
+              <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold">
+                <i data-lucide="pill" class="w-5 h-5"></i>
               </div>
               <div>
-                <h3 class="text-base font-black text-slate-800" id="db-modal-title">Add Medicine</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Formula, Packaging, Pricing & Inventory</p>
+                <h3 class="text-base font-black text-slate-900" id="db-modal-title">Add Medicine</h3>
+                <p class="text-[11px] font-medium text-slate-400">Quickly add or edit medicine details</p>
               </div>
             </div>
-            <button onclick="MasterDB.closeForm()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors">
+            <button type="button" onclick="MasterDB.closeForm()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
               <i data-lucide="x" class="w-4 h-4"></i>
             </button>
           </div>
@@ -233,57 +234,22 @@ const MasterDB = {
           <form id="db-form" onsubmit="MasterDB.saveForm(event)" class="space-y-3.5">
             <input type="hidden" id="db-id">
             
-            <!-- SECTION 1: MEDICINE IDENTITY (From Excel Sheet) -->
-            <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200/80 space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black text-teal-800 uppercase tracking-wider flex items-center gap-1">
-                  <i data-lucide="file-text" class="w-3 h-3 text-teal-600"></i> Medicine Identification (Excel Fields)
-                </span>
-                <span class="text-[9.5px] font-bold text-slate-400">Core Details</span>
+            <!-- SECTION 1: MEDICINE INFORMATION -->
+            <div class="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/80 space-y-3">
+              <div class="flex items-center gap-1.5 text-[11px] font-black text-slate-700 uppercase tracking-wider">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-teal-600"></i>
+                <span>Medicine Information</span>
               </div>
 
-              <!-- Row 1: medicine_name & brand_name -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[11px] font-black text-slate-700 uppercase mb-1">Medicine Name (medicine_name) *</label>
-                  <input type="text" id="db-field-medicine_name" required oninput="MasterDB.onMedicineNameInput(this.value)" placeholder="e.g. FAMORJINE, AUGMENTIN" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+              <!-- Medicine Name & Dosage Form -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="sm:col-span-2">
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Medicine Name *</label>
+                  <input type="text" id="db-field-medicine_name" required placeholder="e.g. Panadol, Augmentin, Famorjine" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
                 <div>
-                  <label class="block text-[11px] font-black text-slate-700 uppercase mb-1">Brand Name (brand_name) *</label>
-                  <input type="text" id="db-field-brand_name" required placeholder="e.g. FAMORJINE, AUGMENTIN" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
-                </div>
-              </div>
-
-              <!-- Row 2: generic_name & company_name -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[11px] font-black text-slate-700 uppercase mb-1">Generic Name / Salt (generic_name) *</label>
-                  <input type="text" id="db-field-generic_name" required placeholder="e.g. Famotidine, Paracetamol" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
-                </div>
-                <div>
-                  <label class="block text-[11px] font-black text-slate-700 uppercase mb-1">Company / Manufacturer (company_name) *</label>
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                    <select id="db-company" onchange="MasterDB.onCompanySelect(this.value)" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
-                      <option value="">Select Company</option>
-                    </select>
-                    <input type="text" id="db-field-company_name" placeholder="Or Type Company Name" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- SECTION 2: FORMULATION, PACKING & CATEGORY (From Excel Sheet) -->
-            <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200/80 space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black text-indigo-800 uppercase tracking-wider flex items-center gap-1">
-                  <i data-lucide="layers" class="w-3 h-3 text-indigo-600"></i> Formulation & Classification (Excel Fields)
-                </span>
-              </div>
-
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <label class="block text-[11px] font-black text-slate-700 uppercase mb-1">Dosage Form (dosage_form) *</label>
-                  <input type="text" id="db-field-dosage_form" list="dosage-form-list" required placeholder="Tabs, Caps, Inj..." class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Dosage Form *</label>
+                  <input type="text" id="db-field-dosage_form" list="dosage-form-list" required placeholder="Tabs, Syrup..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                   <datalist id="dosage-form-list">
                     <option value="Tabs">
                     <option value="Caps">
@@ -308,98 +274,93 @@ const MasterDB = {
                     <option value="Vaginal">
                   </datalist>
                 </div>
+              </div>
 
+              <!-- Generic Formula & Company -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-[11px] font-black text-slate-700 uppercase mb-1">Strength (strength)</label>
-                  <input type="text" id="db-field-strength" placeholder="e.g. 40mg, 200mg, 5ml" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Generic Formula / Salt <span class="text-slate-400 font-normal lowercase">(optional)</span></label>
+                  <input type="text" id="db-field-generic_name" placeholder="e.g. Paracetamol, Amoxicillin" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
-
                 <div>
-                  <label class="block text-[11px] font-black text-slate-700 uppercase mb-1">Packing (packing)</label>
-                  <input type="text" id="db-field-packing" placeholder="e.g. 10s, 20s, 30s, Vial" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Company / Manufacturer *</label>
+                  <input type="text" id="db-field-company_name" list="db-companies-datalist" required placeholder="Select or type company name..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <datalist id="db-companies-datalist"></datalist>
                 </div>
+              </div>
 
+              <!-- Strength & Packing -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-[11px] font-black text-slate-700 uppercase mb-1">Category Code (category)</label>
-                  <input type="text" id="db-field-category_code" placeholder="e.g. 17.1.2, 6.2.2.2, 25.4" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Strength <span class="text-slate-400 font-normal lowercase">(optional)</span></label>
+                  <input type="text" id="db-field-strength" placeholder="e.g. 500mg, 200mg, 5ml" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                </div>
+                <div>
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Packing <span class="text-slate-400 font-normal lowercase">(optional)</span></label>
+                  <input type="text" id="db-field-packing" placeholder="e.g. 10s, 20s, Strip, Bottle" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
               </div>
             </div>
 
-            <!-- SECTION 3: PRICING (From Excel Sheet) -->
-            <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200/80 space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black text-emerald-800 uppercase tracking-wider flex items-center gap-1">
-                  <i data-lucide="dollar-sign" class="w-3 h-3 text-emerald-600"></i> Pricing & Margins (Excel Fields)
-                </span>
+            <!-- SECTION 2: PRICING & STOCK -->
+            <div class="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/80 space-y-3">
+              <div class="flex items-center gap-1.5 text-[11px] font-black text-slate-700 uppercase tracking-wider">
+                <i data-lucide="tag" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span>Pricing & Stock</span>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
-                  <label class="block text-[11px] font-black text-rose-700 uppercase mb-1">Trade Price (trade_price / TP) *</label>
-                  <input type="number" id="db-cost" min="0" step="any" required placeholder="0" oninput="MasterDB.updateFormProfits()" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <label class="block text-xs font-black text-rose-700 uppercase mb-1">Cost Price (TP) *</label>
+                  <input type="number" id="db-cost" min="0" step="any" required placeholder="0" oninput="MasterDB.updateFormProfits()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
                 <div>
-                  <label class="block text-[11px] font-black text-emerald-700 uppercase mb-1">Retail Price (retail_price / MRP) *</label>
-                  <input type="number" id="db-retail" min="0" step="any" required placeholder="0" oninput="MasterDB.updateFormProfits()" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <label class="block text-xs font-black text-emerald-700 uppercase mb-1">Retail Price (MRP) *</label>
+                  <input type="number" id="db-retail" min="0" step="any" required placeholder="0" oninput="MasterDB.updateFormProfits()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
                 <div>
-                  <label class="block text-[11px] font-black text-teal-800 uppercase mb-1">Profit & Margin Preview</label>
-                  <input type="text" id="db-retail-profit" readonly tabindex="-1" placeholder="Rs. 0 (0%)" class="w-full border border-slate-200 bg-white rounded-xl p-2 font-bold text-slate-500 text-xs outline-none cursor-default">
+                  <label class="block text-xs font-black text-teal-800 uppercase mb-1">Profit Preview</label>
+                  <input type="text" id="db-retail-profit" readonly tabindex="-1" placeholder="Rs. 0 (0%)" class="w-full border border-slate-200 bg-white rounded-xl px-3 py-2 font-bold text-slate-500 text-xs outline-none cursor-default">
+                </div>
+                <div>
+                  <label class="block text-xs font-black text-teal-900 uppercase mb-1">Stock (Qty)</label>
+                  <input type="number" id="db-stock" min="0" step="1" placeholder="0" class="w-full bg-teal-50/50 border border-teal-300 rounded-xl px-3 py-2 text-xs font-black text-teal-900 focus:border-teal-500 outline-none text-center">
                 </div>
               </div>
             </div>
 
-            <!-- SECTION 4: INVENTORY & PHARMACY OPERATIONS -->
-            <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200/80 space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black text-amber-800 uppercase tracking-wider flex items-center gap-1">
-                  <i data-lucide="archive" class="w-3 h-3 text-amber-600"></i> Inventory & Stock Details
-                </span>
+            <!-- SECTION 3: STORAGE & CODES (OPTIONAL) -->
+            <div class="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/80 space-y-3">
+              <div class="flex items-center gap-1.5 text-[11px] font-black text-slate-700 uppercase tracking-wider">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-indigo-600"></i>
+                <span>Storage & Barcode <span class="text-slate-400 font-normal lowercase">(optional)</span></span>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Rack / Shelf</label>
+                  <input type="text" id="db-field-rack_shelf" placeholder="e.g. Rack A-1, Shelf 2" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                </div>
+                <div>
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Expiry Date</label>
+                  <input type="date" id="db-field-expiry_date" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none cursor-pointer">
+                </div>
                 <div>
                   <div class="flex justify-between items-center mb-1">
-                    <label class="block text-[11px] font-black text-slate-700 uppercase">Medicine Code</label>
+                    <label class="block text-xs font-black text-slate-700 uppercase">Barcode / Code</label>
                     <button type="button" onclick="MasterDB.autoGenerateCode()" class="text-[10px] font-bold text-teal-600 hover:text-teal-700 underline cursor-pointer">Auto Gen</button>
                   </div>
-                  <div class="relative">
-                    <i data-lucide="barcode" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                    <input type="text" id="db-field-medicine_code" placeholder="e.g. MED-001 or Barcode" class="w-full bg-white border border-slate-200 rounded-xl p-2 pl-8 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-[11px] font-black text-teal-800 uppercase mb-1">Current Stock (Packs/Units)</label>
-                  <input type="number" id="db-stock" min="0" step="1" placeholder="0" class="w-full bg-teal-50/50 border border-teal-300 rounded-xl p-2 text-xs font-black text-teal-900 focus:border-teal-500 outline-none text-center">
-                </div>
-
-                <div>
-                  <label class="block text-[11px] font-black text-rose-700 uppercase mb-1">Min Reorder Alert Level</label>
-                  <input type="number" id="db-field-min_stock_level" min="1" step="1" value="5" placeholder="5" class="w-full bg-rose-50/50 border border-rose-200 rounded-xl p-2 text-xs font-black text-rose-800 focus:border-rose-400 outline-none text-center">
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div>
-                  <label class="block text-[11px] font-black text-slate-700 uppercase mb-1">Expiry Date</label>
-                  <input type="date" id="db-field-expiry_date" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none cursor-pointer">
-                </div>
-                <div>
-                  <label class="block text-[11px] font-black text-slate-700 uppercase mb-1">Shelf / Rack Location</label>
-                  <input type="text" id="db-field-rack_shelf" placeholder="e.g. Rack A-1, Fridge Shelf 2" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <input type="text" id="db-field-medicine_code" placeholder="MED-001 or scan barcode" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
               </div>
             </div>
 
+            <!-- Modal Footer -->
             <div class="pt-3 flex justify-between gap-3 border-t border-slate-100">
-              <button type="button" onclick="MasterDB.closeForm()" class="px-5 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-xs transition-all">Cancel</button>
-              <div class="flex gap-2">
-                <button type="submit" class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-black text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
-                  <i data-lucide="save" class="w-4 h-4"></i> Save Medicine
-                </button>
-              </div>
+              <button type="button" onclick="MasterDB.closeForm()" class="px-5 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-xs transition-all cursor-pointer">Cancel</button>
+              <button type="submit" class="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-black text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="save" class="w-4 h-4"></i> Save Medicine
+              </button>
             </div>
           </form>
         </div>
@@ -914,28 +875,30 @@ const MasterDB = {
       codeInput.value = `MED-${prefix}-${rand}`;
     }
 
-    // Core Excel Fields
+    // Core Fields
     const medName = data ? (data.medicine_name || data.item_name || '') : '';
     document.getElementById('db-field-medicine_name').value = medName;
-    document.getElementById('db-field-brand_name').value = data ? (data.brand_name || medName) : '';
+    const brandInput = document.getElementById('db-field-brand_name');
+    if (brandInput) brandInput.value = data ? (data.brand_name || medName) : '';
     document.getElementById('db-field-generic_name').value = data ? (data.generic_name || '') : '';
     
-    // Dosage form, strength, packing, category code
+    // Dosage form, strength, packing
     const formInput = document.getElementById('db-field-dosage_form');
     if (formInput) {
       formInput.value = data ? (data.dosage_form || '') : (this._editingCatSlug && this._editingCatSlug !== 'all' ? (this.categories.find(c => c.id === this._editingCatSlug)?.label || '') : '');
     }
     document.getElementById('db-field-strength').value = data ? (data.strength || '') : '';
     document.getElementById('db-field-packing').value = data ? (data.packing || '') : '';
-    document.getElementById('db-field-category_code').value = data ? (data.category || '') : '';
+    const catCodeInput = document.getElementById('db-field-category_code');
+    if (catCodeInput) catCodeInput.value = data ? (data.category || '') : '';
     
     // Company selection
-    const companySelect = document.getElementById('db-company');
-    companySelect.innerHTML = '<option value="">Select Company</option>' + 
-      (this.companies || []).map(c => `
-        <option value="${c.id}" ${data && data.company_id === c.id ? 'selected' : ''}>${c.name}</option>
-      `).join('');
-    document.getElementById('db-field-company_name').value = data ? (data.company_name || '') : '';
+    const compDatalist = document.getElementById('db-companies-datalist');
+    if (compDatalist) {
+      compDatalist.innerHTML = (this.companies || []).map(c => `<option value="${c.name}">`).join('');
+    }
+    const compInput = document.getElementById('db-field-company_name');
+    if (compInput) compInput.value = data ? (data.company_name || '') : '';
 
     // Pricing
     document.getElementById('db-cost').value = data ? (data.trade_price ?? data.cost_price ?? '') : '';
@@ -945,7 +908,8 @@ const MasterDB = {
     document.getElementById('db-field-expiry_date').value = data ? (data.expiry_date || '') : '';
     document.getElementById('db-field-rack_shelf').value = data ? (data.rack_shelf || '') : '';
     document.getElementById('db-stock').value = data ? (data.current_stock ?? 0) : '';
-    document.getElementById('db-field-min_stock_level').value = data ? (data.min_stock_level || 5) : 5;
+    const minStockInput = document.getElementById('db-field-min_stock_level');
+    if (minStockInput) minStockInput.value = data ? (data.min_stock_level || 5) : 5;
 
     this.updateFormProfits();
 
@@ -991,16 +955,18 @@ const MasterDB = {
     const id = document.getElementById('db-id').value;
     
     const medName = document.getElementById('db-field-medicine_name').value.trim();
-    const brandName = (document.getElementById('db-field-brand_name').value.trim()) || medName;
-    const genericName = document.getElementById('db-field-generic_name').value.trim();
-    const dosageForm = document.getElementById('db-field-dosage_form').value.trim();
-    const strength = document.getElementById('db-field-strength').value.trim();
-    const packing = document.getElementById('db-field-packing').value.trim();
-    const categoryCode = document.getElementById('db-field-category_code').value.trim();
+    const brandName = (document.getElementById('db-field-brand_name')?.value?.trim()) || medName;
+    const genericName = (document.getElementById('db-field-generic_name')?.value || '').trim();
+    const dosageForm = (document.getElementById('db-field-dosage_form')?.value || '').trim();
+    const strength = (document.getElementById('db-field-strength')?.value || '').trim();
+    const packing = (document.getElementById('db-field-packing')?.value || '').trim();
+    const categoryCode = (document.getElementById('db-field-category_code')?.value || '').trim();
     const costPrice = parseFloat(document.getElementById('db-cost').value) || 0;
     const retailPrice = parseFloat(document.getElementById('db-retail').value) || 0;
-    const companyId = parseInt(document.getElementById('db-company').value) || null;
-    const customCompanyName = (document.getElementById('db-field-company_name')?.value || '').trim();
+
+    const finalCompanyName = (document.getElementById('db-field-company_name')?.value || '').trim();
+    const matchedComp = (this.companies || []).find(c => c.name.toLowerCase() === finalCompanyName.toLowerCase());
+    const companyId = matchedComp ? matchedComp.id : null;
 
     // Map or find matching category slug from dosage form
     let targetCategory = this._editingCatSlug || this.currentCategory;
@@ -1014,14 +980,19 @@ const MasterDB = {
       targetCategory = matchCat ? matchCat.id : (this.categories[0]?.id || 'tablet');
     }
 
-    const companyObj = this.companies.find(c => c.id === companyId);
-    const finalCompanyName = customCompanyName || (companyObj ? companyObj.name : '');
+    // Auto-generate code if empty
+    let medCode = (document.getElementById('db-field-medicine_code')?.value || '').trim();
+    if (!medCode) {
+      const prefix = (targetCategory && targetCategory !== 'all' ? targetCategory : 'med').substring(0, 3).toUpperCase();
+      const rand = Math.floor(100 + Math.random() * 900);
+      medCode = `MED-${prefix}-${rand}`;
+    }
 
     // Composite display name
     const itemDisplayName = medName + (strength ? ' ' + strength : '') + (dosageForm ? ' ' + dosageForm : '');
 
     const data = {
-      medicine_code: document.getElementById('db-field-medicine_code').value.trim(),
+      medicine_code: medCode,
       medicine_name: medName,
       item_name: itemDisplayName,
       brand_name: brandName,
@@ -1033,12 +1004,12 @@ const MasterDB = {
       company_id: companyId,
       company_name: finalCompanyName,
       batch_no: '',
-      expiry_date: document.getElementById('db-field-expiry_date').value,
-      rack_shelf: document.getElementById('db-field-rack_shelf').value.trim(),
+      expiry_date: document.getElementById('db-field-expiry_date')?.value || '',
+      rack_shelf: (document.getElementById('db-field-rack_shelf')?.value || '').trim(),
       unit: packing || 'PACK',
       pieces_per_carton: 1,
-      current_stock: parseInt(document.getElementById('db-stock').value) || 0,
-      min_stock_level: parseInt(document.getElementById('db-field-min_stock_level').value) || 5,
+      current_stock: parseInt(document.getElementById('db-stock')?.value) || 0,
+      min_stock_level: parseInt(document.getElementById('db-field-min_stock_level')?.value) || 5,
       trade_price: costPrice,
       cost_price: costPrice,
       retail_price: retailPrice,
