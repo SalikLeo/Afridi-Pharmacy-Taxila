@@ -1,0 +1,47 @@
+{
+  "name": "afridi-diagnostic-centre",
+  "version": "1.0.0",
+  "description": "Afridi Diagnostic Centre Management System & POS",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "dist": "electron-builder",
+    "build:win": "electron-builder --win"
+  },
+  "keywords": ["diagnostic", "pharmacy", "pos", "pakistan", "medical-store", "drap"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^12.9.0"
+  },
+  "devDependencies": {
+    "electron": "^41.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.afridi.diagnostic.pos",
+    "productName": "Afridi Diagnostic Centre",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Afridi Diagnostic Centre"
+    },
+    "files": [
+      "**/*",
+      "!dist",
+      "!node_modules/@electron/rebuild/**/*"
+    ]
+  }
+}

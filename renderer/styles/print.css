@@ -1,0 +1,82 @@
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+  
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide everything except print containers */
+  body > aside, 
+  body > main, 
+  body > #confirm-modal, 
+  body > #payment-modal, 
+  body > #preview-modal, 
+  body > #loading-overlay,
+  body > #quick-calculator-widget {
+    display: none !important;
+  }
+
+  /* Default: hide all print containers */
+  #receipt-print, 
+  #db-print-container, 
+  #voucher-print, 
+  #report-print-container {
+    display: none !important;
+  }
+
+  /* Show only the active print container that has content AND active-print-target class */
+  #receipt-print.active-print-target:not(:empty), 
+  #db-print-container.active-print-target:not(:empty), 
+  #voucher-print.active-print-target:not(:empty), 
+  #report-print-container.active-print-target:not(:empty) {
+    display: block !important;
+    position: relative !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+
+  /* 80mm Thermal Receipt layout & container */
+  .receipt-80mm {
+    width: 100% !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 4px 6px !important;
+    box-sizing: border-box !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: geometricPrecision !important;
+    border: none !important;
+  }
+
+  .receipt-80mm, .receipt-80mm * {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  }
+
+  /* Ensure all colors, backgrounds, and text contrast are preserved crisp without blur */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: geometricPrecision !important;
+  }
+}
