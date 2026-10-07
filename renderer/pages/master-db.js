@@ -245,11 +245,11 @@ const MasterDB = {
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div class="sm:col-span-2">
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Medicine Name *</label>
-                  <input type="text" id="db-field-medicine_name" required placeholder="e.g. Panadol, Augmentin, Famorjine" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <input type="text" id="db-field-medicine_name" required placeholder="e.g. Panadol" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
                 <div>
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Dosage Form *</label>
-                  <input type="text" id="db-field-dosage_form" list="dosage-form-list" required placeholder="Tabs, Syrup..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <input type="text" id="db-field-dosage_form" list="dosage-form-list" required placeholder="e.g. Tabs" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                   <datalist id="dosage-form-list">
                     <option value="Tabs">
                     <option value="Caps">
@@ -276,28 +276,20 @@ const MasterDB = {
                 </div>
               </div>
 
-              <!-- Generic Formula & Company -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Generic Formula, Strength & Company -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Generic Formula / Salt <span class="text-slate-400 font-normal lowercase">(optional)</span></label>
-                  <input type="text" id="db-field-generic_name" placeholder="e.g. Paracetamol, Amoxicillin" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Generic Formula</label>
+                  <input type="text" id="db-field-generic_name" placeholder="e.g. Paracetamol" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
                 <div>
-                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Company / Manufacturer *</label>
-                  <input type="text" id="db-field-company_name" list="db-companies-datalist" required placeholder="Select or type company name..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Strength</label>
+                  <input type="text" id="db-field-strength" placeholder="e.g. 500mg" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                </div>
+                <div>
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Company *</label>
+                  <input type="text" id="db-field-company_name" list="db-companies-datalist" required placeholder="Company name" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                   <datalist id="db-companies-datalist"></datalist>
-                </div>
-              </div>
-
-              <!-- Strength & Packing -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Strength <span class="text-slate-400 font-normal lowercase">(optional)</span></label>
-                  <input type="text" id="db-field-strength" placeholder="e.g. 500mg, 200mg, 5ml" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
-                </div>
-                <div>
-                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Packing <span class="text-slate-400 font-normal lowercase">(optional)</span></label>
-                  <input type="text" id="db-field-packing" placeholder="e.g. 10s, 20s, Strip, Bottle" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
               </div>
             </div>
@@ -329,28 +321,21 @@ const MasterDB = {
               </div>
             </div>
 
-            <!-- SECTION 3: STORAGE & CODES (OPTIONAL) -->
+            <!-- SECTION 3: STORAGE & EXPIRY -->
             <div class="bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/80 space-y-3">
               <div class="flex items-center gap-1.5 text-[11px] font-black text-slate-700 uppercase tracking-wider">
                 <i data-lucide="map-pin" class="w-3.5 h-3.5 text-indigo-600"></i>
-                <span>Storage & Barcode <span class="text-slate-400 font-normal lowercase">(optional)</span></span>
+                <span>Storage & Expiry</span>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Rack / Shelf</label>
-                  <input type="text" id="db-field-rack_shelf" placeholder="e.g. Rack A-1, Shelf 2" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <input type="text" id="db-field-rack_shelf" placeholder="e.g. A-1" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
                 <div>
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Expiry Date</label>
                   <input type="date" id="db-field-expiry_date" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none cursor-pointer">
-                </div>
-                <div>
-                  <div class="flex justify-between items-center mb-1">
-                    <label class="block text-xs font-black text-slate-700 uppercase">Barcode / Code</label>
-                    <button type="button" onclick="MasterDB.autoGenerateCode()" class="text-[10px] font-bold text-teal-600 hover:text-teal-700 underline cursor-pointer">Auto Gen</button>
-                  </div>
-                  <input type="text" id="db-field-medicine_code" placeholder="MED-001 or scan barcode" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
               </div>
             </div>
@@ -861,18 +846,22 @@ const MasterDB = {
     
     this._editingCatSlug = catSlug || (data ? (data.slug || this.currentCategory) : this.currentCategory);
     this._brandManuallyEdited = !!(data && data.brand_name && data.brand_name !== (data.medicine_name || data.item_name));
+    this._currentEditingCode = data ? (data.medicine_code || '') : '';
+    this._currentEditingPacking = data ? (data.packing || '') : '';
 
     document.getElementById('db-modal-title').textContent = data ? 'Edit Medicine' : 'Add New Medicine';
     document.getElementById('db-id').value = data ? data.id : '';
     
-    // Set Medicine Code or Auto-generate
+    // Set Medicine Code if input exists in UI
     const codeInput = document.getElementById('db-field-medicine_code');
-    if (data && data.medicine_code) {
-      codeInput.value = data.medicine_code;
-    } else {
-      const prefix = (this._editingCatSlug && this._editingCatSlug !== 'all' ? this._editingCatSlug : 'med').substring(0, 3).toUpperCase();
-      const rand = Math.floor(100 + Math.random() * 900);
-      codeInput.value = `MED-${prefix}-${rand}`;
+    if (codeInput) {
+      if (data && data.medicine_code) {
+        codeInput.value = data.medicine_code;
+      } else {
+        const prefix = (this._editingCatSlug && this._editingCatSlug !== 'all' ? this._editingCatSlug : 'med').substring(0, 3).toUpperCase();
+        const rand = Math.floor(100 + Math.random() * 900);
+        codeInput.value = `MED-${prefix}-${rand}`;
+      }
     }
 
     // Core Fields
@@ -888,7 +877,8 @@ const MasterDB = {
       formInput.value = data ? (data.dosage_form || '') : (this._editingCatSlug && this._editingCatSlug !== 'all' ? (this.categories.find(c => c.id === this._editingCatSlug)?.label || '') : '');
     }
     document.getElementById('db-field-strength').value = data ? (data.strength || '') : '';
-    document.getElementById('db-field-packing').value = data ? (data.packing || '') : '';
+    const packingInput = document.getElementById('db-field-packing');
+    if (packingInput) packingInput.value = data ? (data.packing || '') : '';
     const catCodeInput = document.getElementById('db-field-category_code');
     if (catCodeInput) catCodeInput.value = data ? (data.category || '') : '';
     
@@ -959,7 +949,7 @@ const MasterDB = {
     const genericName = (document.getElementById('db-field-generic_name')?.value || '').trim();
     const dosageForm = (document.getElementById('db-field-dosage_form')?.value || '').trim();
     const strength = (document.getElementById('db-field-strength')?.value || '').trim();
-    const packing = (document.getElementById('db-field-packing')?.value || '').trim();
+    const packing = (document.getElementById('db-field-packing')?.value || '').trim() || this._currentEditingPacking || '';
     const categoryCode = (document.getElementById('db-field-category_code')?.value || '').trim();
     const costPrice = parseFloat(document.getElementById('db-cost').value) || 0;
     const retailPrice = parseFloat(document.getElementById('db-retail').value) || 0;
@@ -980,8 +970,8 @@ const MasterDB = {
       targetCategory = matchCat ? matchCat.id : (this.categories[0]?.id || 'tablet');
     }
 
-    // Auto-generate code if empty
-    let medCode = (document.getElementById('db-field-medicine_code')?.value || '').trim();
+    // Preserve existing code if editing, or auto-generate code silently if empty
+    let medCode = (document.getElementById('db-field-medicine_code')?.value || '').trim() || this._currentEditingCode;
     if (!medCode) {
       const prefix = (targetCategory && targetCategory !== 'all' ? targetCategory : 'med').substring(0, 3).toUpperCase();
       const rand = Math.floor(100 + Math.random() * 900);
