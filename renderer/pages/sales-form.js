@@ -411,32 +411,23 @@ window.SalesForm = {
               </button>
             </div>
 
-            <!-- Modal Quick Suggestions -->
-            <div class="px-5 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-1.5 flex-wrap">
-              <span class="text-[10px] uppercase font-black tracking-wider text-slate-400 mr-1">Quick Add:</span>
-              <button type="button" onclick="SalesForm.addMoreBillSuggestion('Checkup Fees', 300)" class="px-2 py-0.5 rounded-lg bg-white border border-slate-200 hover:border-teal-500 hover:text-teal-700 text-[11px] font-bold text-slate-700 cursor-pointer transition-all shadow-2xs">
-                + Checkup Fees (300)
-              </button>
-              <button type="button" onclick="SalesForm.addMoreBillSuggestion('X-Ray', 2000)" class="px-2 py-0.5 rounded-lg bg-white border border-slate-200 hover:border-teal-500 hover:text-teal-700 text-[11px] font-bold text-slate-700 cursor-pointer transition-all shadow-2xs">
-                + X-Ray (2000)
-              </button>
-              <button type="button" onclick="SalesForm.addMoreBillSuggestion('Lab Tests', 2500)" class="px-2 py-0.5 rounded-lg bg-white border border-slate-200 hover:border-teal-500 hover:text-teal-700 text-[11px] font-bold text-slate-700 cursor-pointer transition-all shadow-2xs">
-                + Lab Tests (2500)
-              </button>
-              <button type="button" onclick="SalesForm.addMoreBillSuggestion('Ultrasound', 1500)" class="px-2 py-0.5 rounded-lg bg-white border border-slate-200 hover:border-teal-500 hover:text-teal-700 text-[11px] font-bold text-slate-700 cursor-pointer transition-all shadow-2xs">
-                + Ultrasound (1500)
-              </button>
-            </div>
-
             <!-- Modal Table / List Body -->
-            <div class="p-5 overflow-y-auto flex-1 space-y-2.5 max-h-[380px]">
+            <div class="p-5 overflow-y-auto flex-1 space-y-3 max-h-[400px]">
+              <!-- Column Headers -->
+              <div class="flex items-center gap-2 px-1 text-[11px] font-black uppercase tracking-wider text-slate-400 select-none">
+                <span class="w-6 text-center">#</span>
+                <span class="flex-1">Item / Description</span>
+                <span class="w-36 text-right pr-2">Amount</span>
+                <span class="w-8"></span>
+              </div>
+
               <div id="more-bill-rows-container" class="space-y-2">
                 <!-- Rows dynamically injected here -->
               </div>
 
-              <div class="pt-2">
-                <button type="button" onclick="SalesForm.addMoreBillRow()" class="w-full py-2.5 border-2 border-dashed border-teal-300 hover:border-teal-500 hover:bg-teal-50/50 text-teal-700 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-                  <i data-lucide="plus" class="w-4 h-4"></i>
+              <div class="pt-1">
+                <button type="button" onclick="SalesForm.addMoreBillRow()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                  <i data-lucide="plus" class="w-4 h-4 text-teal-600"></i>
                   <span>Add Another Item</span>
                 </button>
               </div>
@@ -1661,16 +1652,17 @@ window.SalesForm = {
     }
 
     container.innerHTML = this.moreBillItems.map((item, idx) => `
-      <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors">
-        <span class="w-6 text-center font-black text-slate-400 text-xs tabular-nums">${idx + 1}</span>
+      <div class="flex items-center gap-2 group">
+        <span class="w-6 text-center font-bold text-slate-400 text-xs tabular-nums select-none">${idx + 1}</span>
         <input type="text"
                id="mb-item-name-${idx}"
                value="${(item.name || '').replace(/"/g, '&quot;')}"
-               placeholder="Item / Service Name (e.g. X-Ray, Checkup)"
+               placeholder="Item name (e.g. X-Ray, Checkup)"
                oninput="SalesForm.updateMoreBillRowName(${idx}, this.value)"
-               class="flex-1 px-3 py-1.5 bg-white border border-slate-200 focus:border-teal-500 rounded-lg text-xs font-bold text-slate-800 outline-none">
-        <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 focus-within:border-teal-500">
-          <span class="text-slate-400 text-xs font-bold">Rs.</span>
+               onkeydown="if(event.key === 'Enter') { event.preventDefault(); const amt = document.getElementById('mb-item-amount-${idx}'); if (amt) { amt.focus(); amt.select(); } }"
+               class="flex-1 h-9 px-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-teal-500 rounded-xl text-xs font-bold text-slate-800 outline-none transition-colors">
+        <div class="flex items-center h-9 w-36 px-2.5 bg-slate-50 hover:bg-slate-100/70 focus-within:bg-white border border-slate-200 focus-within:border-teal-500 rounded-xl transition-colors">
+          <span class="text-slate-400 text-xs font-bold mr-1.5 select-none">Rs.</span>
           <input type="number"
                  id="mb-item-amount-${idx}"
                  value="${item.amount !== undefined && item.amount !== '' ? item.amount : ''}"
@@ -1678,9 +1670,10 @@ window.SalesForm = {
                  min="0"
                  step="1"
                  oninput="SalesForm.updateMoreBillRowAmount(${idx}, this.value)"
-                 class="w-24 bg-transparent text-xs font-black text-slate-900 outline-none text-right tabular-nums">
+                 onkeydown="if(event.key === 'Enter') { event.preventDefault(); SalesForm.addMoreBillRow(); }"
+                 class="w-full bg-transparent text-xs font-black text-slate-900 outline-none text-right tabular-nums">
         </div>
-        <button type="button" onclick="SalesForm.removeMoreBillRow(${idx})" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors cursor-pointer" title="Remove item">
+        <button type="button" onclick="SalesForm.removeMoreBillRow(${idx})" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors cursor-pointer shrink-0" title="Remove item">
           <i data-lucide="trash-2" class="w-4 h-4"></i>
         </button>
       </div>
