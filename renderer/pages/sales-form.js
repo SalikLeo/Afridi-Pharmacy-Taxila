@@ -1586,10 +1586,10 @@ window.SalesForm = {
         
         <!-- Metadata -->
         <div style="font-size: 11px; margin-bottom: 8px; border-bottom: 1px dashed #000; padding-bottom: 6px; line-height: 1.55;">
-          <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Inv #:</span> <span style="font-weight: 900; font-size: 12px;">${data.proposal_number}</span></div>
-          <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Date & Time:</span> <span>${app.formatDateTime(data.date)}</span></div>
-          ${patientDisplay ? `<div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold; flex-shrink: 0; margin-right: 8px;">Patient:</span> <span style="font-weight: bold; text-align: right;">${patientDisplay}</span></div>` : ''}
-          <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Payment:</span> <span style="font-weight: bold; text-transform: uppercase;">${data.payment_method || 'Cash'}</span></div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Inv #:</span> <span style="font-weight: 900; font-size: 12px;">${data.proposal_number}</span></div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Date & Time:</span> <span style="font-weight: 900; font-size: 12px;">${app.formatDateTime(data.date)}</span></div>
+          ${patientDisplay ? `<div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold; flex-shrink: 0; margin-right: 8px;">Patient:</span> <span style="font-weight: 900; font-size: 12px; text-align: right;">${patientDisplay}</span></div>` : ''}
+          <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Payment:</span> <span style="font-weight: 900; font-size: 12px; text-transform: uppercase;">${data.payment_method || 'Cash'}</span></div>
         </div>
 
         <!-- Items Bordered Table -->

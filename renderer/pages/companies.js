@@ -2525,10 +2525,10 @@ window.Companies = {
                 
                 <!-- Metadata Card -->
                 <div style="font-size: 11px; margin-bottom: 8px; border-bottom: 1px dashed #000; padding-bottom: 6px; line-height: 1.55;">
-                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Invoice #:</span> <span style="font-weight: 900; font-size: 12px;">${invoiceDisplay}</span></div>
-                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Date & Time:</span> <span>${app.formatDateTime(txn.date)}</span></div>
-                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Supplier:</span> <span style="font-weight: bold;">${company.name}</span></div>
-                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Type:</span> <span style="font-weight: bold; text-transform: uppercase;">${txn.type.toUpperCase()}</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Invoice #:</span> <span style="font-weight: 900; font-size: 12px;">${invoiceDisplay}</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Date & Time:</span> <span style="font-weight: 900; font-size: 12px;">${app.formatDateTime(txn.date)}</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Supplier:</span> <span style="font-weight: 900; font-size: 12px;">${company.name}</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Type:</span> <span style="font-weight: 900; font-size: 12px; text-transform: uppercase;">${txn.type.toUpperCase()}</span></div>
                 </div>
 
                 <!-- Items Bordered Table -->
@@ -2658,10 +2658,10 @@ window.Companies = {
                 
                 <!-- Metadata Card -->
                 <div style="font-size: 11px; margin-bottom: 8px; border-bottom: 1px dashed #000; padding-bottom: 6px; line-height: 1.55;">
-                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Invoice #:</span> <span style="font-weight: 900; font-size: 12px;">${invoiceDisplay}</span></div>
-                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Date & Time:</span> <span>${app.formatDateTime(txn.date)}</span></div>
-                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Supplier:</span> <span style="font-weight: bold;">${company.name}</span></div>
-                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Type:</span> <span style="font-weight: bold; text-transform: uppercase;">${txn.type.toUpperCase()}</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Invoice #:</span> <span style="font-weight: 900; font-size: 12px;">${invoiceDisplay}</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Date & Time:</span> <span style="font-weight: 900; font-size: 12px;">${app.formatDateTime(txn.date)}</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Supplier:</span> <span style="font-weight: 900; font-size: 12px;">${company.name}</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold;">Type:</span> <span style="font-weight: 900; font-size: 12px; text-transform: uppercase;">${txn.type.toUpperCase()}</span></div>
                 </div>
 
                 <!-- Items Bordered Table -->
