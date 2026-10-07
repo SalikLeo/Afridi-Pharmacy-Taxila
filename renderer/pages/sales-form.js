@@ -593,8 +593,8 @@ window.SalesForm = {
       }
 
       this.searchResults = itemsList.slice(0, 50);
-      // Default to the first available (not yet added) item if possible
-      const firstAvailable = this.searchResults.findIndex(item => !item.inCart);
+      // Default to the first available (not yet added and in stock) item if possible
+      const firstAvailable = this.searchResults.findIndex(item => !item.inCart && (this.getItemAvailableStock ? this.getItemAvailableStock(item) : (item.current_stock || 0)) > 0);
       this.selectedSearchIndex = firstAvailable >= 0 ? firstAvailable : 0;
       this.renderSearchDropdown();
     }, 40);
@@ -622,9 +622,10 @@ window.SalesForm = {
       const strength = item.strength || '';
       const packing = item.packing || '';
       const price = item.retail_price || 0;
-      const stock = item.current_stock || 0;
+      const stock = this.getItemAvailableStock ? this.getItemAvailableStock(item) : (item.current_stock || 0);
       const isLowStock = stock <= (item.min_stock_level || 5);
       const inCart = !!item.inCart;
+      const isOutOfStock = stock <= 0;
 
       if (inCart) {
         return `
@@ -654,6 +655,41 @@ window.SalesForm = {
               Stock: ${stock}
             </span>
             <span class="text-xs font-black font-display tabular-nums text-slate-500">
+              Rs. ${app.formatNumber(price)}
+            </span>
+          </div>
+        </div>
+        `;
+      }
+
+      if (isOutOfStock) {
+        return `
+        <div id="sf-search-item-${idx}" 
+             onclick="SalesForm.selectSearchResult(${idx})"
+             class="px-3.5 py-2 transition-all cursor-not-allowed flex items-center justify-between gap-3 bg-rose-50/50 border-l-4 border-rose-400 opacity-75 select-none ${isSelected ? 'ring-2 ring-rose-400 ring-inset' : ''}">
+          
+          <!-- Left: Name & Formula -->
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 flex-wrap leading-tight">
+              <span class="text-xs font-black text-slate-700">${displayName}</span>
+              ${brandName && brandName !== displayName ? `<span class="text-[11px] text-slate-500 font-semibold">(${brandName})</span>` : ''}
+              ${form ? `<span class="text-[9.5px] px-1.5 py-0.2 rounded font-black uppercase bg-slate-200 text-slate-500">${form}</span>` : ''}
+              ${strength ? `<span class="text-[10px] font-bold text-slate-500">${strength}</span>` : ''}
+              ${packing ? `<span class="text-[10px] font-semibold text-slate-400">(${packing})</span>` : ''}
+              <span class="text-[9.5px] px-2 py-0.5 rounded font-black uppercase bg-rose-100 text-rose-700 tracking-wider flex items-center gap-1 shrink-0 ml-1">
+                <i class="fas fa-ban text-[9px] text-rose-600"></i> Out of Stock
+              </span>
+            </div>
+            ${item.generic_name ? `<div class="text-[10.5px] truncate mt-0.5 text-slate-400 font-medium">${item.generic_name}</div>` : ''}
+          </div>
+
+          <!-- Right: Stock, Rack & MRP -->
+          <div class="flex items-center gap-3 shrink-0 text-right">
+            ${item.rack_shelf ? `<span class="text-[10px] font-bold text-slate-400">${item.rack_shelf}</span>` : ''}
+            <span class="text-[10px] font-black px-1.5 py-0.5 rounded tabular-nums bg-rose-100 text-rose-700">
+              Stock: 0
+            </span>
+            <span class="text-xs font-black font-display tabular-nums text-slate-400">
               Rs. ${app.formatNumber(price)}
             </span>
           </div>
@@ -735,6 +771,13 @@ window.SalesForm = {
       return;
     }
 
+    const availStock = this.getItemAvailableStock(item);
+    if (availStock <= 0) {
+      const name = item.medicine_name || item.item_name || 'This medicine';
+      app.showToast(`"${name}" is out of stock (0 available)`, 'warning');
+      return;
+    }
+
     this.addToCart(item);
 
     // Clear search input and close dropdown
@@ -767,6 +810,13 @@ window.SalesForm = {
   },
 
   addToCart(item) {
+    const availStock = this.getItemAvailableStock(item);
+    if (availStock <= 0) {
+      const name = item.medicine_name || item.item_name || 'This medicine';
+      app.showToast(`"${name}" is out of stock and cannot be added`, 'warning');
+      return;
+    }
+
     const activePrice = item.retail_price || 0;
     const activeCost = item.trade_price ?? item.cost_price ?? 0;
     const itemSlug = item.slug || 'tablet';
