@@ -781,9 +781,6 @@ const MasterDB = {
               <button onclick="MasterDB.openAddStockModal(${p.id}, '${p.slug || this.currentCategory}')" class="p-1 text-teal-600 hover:bg-teal-50 rounded transition-colors" title="Quick Add Stock">
                 <i data-lucide="package-plus" class="w-3.5 h-3.5"></i>
               </button>
-              <button onclick="MasterDB.toggleFavorite('${p.slug || this.currentCategory}', ${p.id})" class="p-1 ${p.is_favorite ? 'text-amber-500 fill-current' : 'text-slate-300 hover:text-amber-500'} rounded transition-colors" title="Favorite">
-                <i data-lucide="star" class="w-3.5 h-3.5 ${p.is_favorite ? 'fill-current' : ''}"></i>
-              </button>
               <button onclick="MasterDB.openForm(${p.id}, '${p.slug || this.currentCategory}')" class="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Edit Medicine">
                 <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
               </button>
@@ -1265,6 +1262,7 @@ const MasterDB = {
 
     app.showLoading();
     try {
+      const cat = item.slug || (this.currentCategory !== 'all' ? this.currentCategory : 'tablet');
       const updated = {
         ...item,
         current_stock: (item.current_stock || 0) + addQty,
@@ -1272,10 +1270,103 @@ const MasterDB = {
         cost_price: cost,
         retail_price: retail
       };
-      const cat = item.slug || (this.currentCategory !== 'all' ? this.currentCategory : 'tablet');
       await window.api.updateProduct(cat, item.id, updated);
+
+      // Record transaction in transactions log
+      try {
+        let companies = await window.api.getCompanies() || [];
+        let company = null;
+        if (item.company_id) {
+          company = companies.find(c => c.id == item.company_id);
+        }
+        if (!company && item.company_name) {
+          company = companies.find(c => c.name.trim().toLowerCase() === item.company_name.trim().toLowerCase());
+        }
+        if (!company) {
+          const compName = (item.company_name && item.company_name.trim() !== '-' && item.company_name.trim() !== '') 
+            ? item.company_name.trim() 
+            : 'General Stock';
+          company = companies.find(c => c.name.trim().toLowerCase() === compName.toLowerCase());
+          if (!company) {
+            const newCompId = await window.api.saveCompany({
+              name: compName,
+              contact_person: '',
+              phone: '',
+              address: '',
+              amount: 0
+            });
+            companies = await window.api.getCompanies() || [];
+            company = companies.find(c => c.id == newCompId) || { id: newCompId, name: compName, amount: 0 };
+          }
+        }
+
+        if (company && company.id) {
+          const totalCost = addQty * cost;
+          const nextNoKey = 'next-invoice-no-companies';
+          let nextNo = window.storage.get(nextNoKey);
+          if (nextNo === null) {
+            let totalTxns = 0;
+            companies.forEach(c => {
+              const txns = window.storage.get(`companies-${c.id}-transactions`) || [];
+              totalTxns += txns.length;
+            });
+            nextNo = totalTxns + 1;
+          }
+
+          const txnKey = `companies-${company.id}-transactions`;
+          const transactions = window.storage.get(txnKey) || [];
+          const newBalance = (company.amount || 0) + totalCost;
+
+          const newTxn = {
+            id: Date.now().toString(),
+            invoice_no: nextNo,
+            invoice_prefix: 'CMP',
+            type: 'purchase',
+            amount: totalCost,
+            subtotal: totalCost,
+            discount: 0,
+            paid: 0,
+            description: `Stock Added: ${item.item_name} (${addQty} units @ Rs. ${cost})`,
+            items: [{
+              id: item.id,
+              slug: cat,
+              item_name: item.item_name,
+              name: item.item_name,
+              medicine_name: item.item_name,
+              medicine_code: item.medicine_code || '',
+              cartons: addQty,
+              qty: addQty,
+              total_boxes: addQty,
+              carton_cost: cost,
+              box_cost: cost,
+              cost: cost,
+              price: cost,
+              total: totalCost,
+              lineTotal: totalCost
+            }],
+            date: new Date().toISOString(),
+            balanceAfter: newBalance
+          };
+
+          window.storage.set(nextNoKey, nextNo + 1);
+          transactions.unshift(newTxn);
+          window.storage.set(txnKey, transactions);
+
+          // Update Company Balance
+          await window.api.saveCompany({ ...company, amount: newBalance });
+
+          // Refresh active Transactions view if open
+          if (window.Companies && typeof window.Companies.loadTransactions === 'function' && window.Companies.currentView === 'transactions') {
+            await window.Companies.loadTransactions();
+          }
+        }
+      } catch (txnErr) {
+        console.error('Failed to record stock transaction:', txnErr);
+      }
+
       this.closeAddStockModal();
       await this.loadData();
+      app.showToast('Stock updated & recorded in transactions.', 'success');
     } catch(err) {
       console.error(err);
       app.showAlert("Error updating stock.");
@@ -1324,12 +1415,6 @@ const MasterDB = {
         }
       }
     });
-  },
-
-  async toggleFavorite(category, id) {
-    const cat = category || (this.currentCategory !== 'all' ? this.currentCategory : 'tablet');
-    await window.api.toggleFavorite(cat, id);
-    await this.loadData();
   },
 
   openManageCategoriesModal() {

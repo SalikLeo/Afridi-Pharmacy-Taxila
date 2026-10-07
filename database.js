@@ -1527,10 +1527,12 @@ function saveCompany(data) {
     const { id, ...updates } = data;
     const clause = Object.keys(updates).map(k => `${k} = @${k}`).join(', ');
     db.prepare(`UPDATE companies SET ${clause} WHERE id = @id`).run(data);
+    return data.id;
   } else {
     const keys = Object.keys(data);
     const placeholders = keys.map(k => `@${k}`).join(', ');
-    db.prepare(`INSERT INTO companies (${keys.join(', ')}) VALUES (${placeholders})`).run(data);
+    const info = db.prepare(`INSERT INTO companies (${keys.join(', ')}) VALUES (${placeholders})`).run(data);
+    return info.lastInsertRowid;
   }
 }
 
