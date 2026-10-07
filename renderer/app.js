@@ -380,6 +380,55 @@ const app = {
     }, 10);
   },
 
+  showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toast-container';
+      container.className = 'fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none no-print';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    const bgColors = {
+      success: 'bg-emerald-600 text-white shadow-emerald-900/20',
+      error: 'bg-rose-600 text-white shadow-rose-900/20',
+      warning: 'bg-amber-500 text-white shadow-amber-900/20',
+      info: 'bg-slate-900 text-white shadow-slate-900/20'
+    };
+    const icons = {
+      success: 'check-circle',
+      error: 'alert-circle',
+      warning: 'alert-triangle',
+      info: 'info'
+    };
+    const toastBg = bgColors[type] || bgColors.info;
+    const toastIcon = icons[type] || icons.info;
+
+    toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold transition-all duration-300 transform translate-y-2 opacity-0 ${toastBg}`;
+    toast.innerHTML = `
+      <i data-lucide="${toastIcon}" class="w-4 h-4 shrink-0"></i>
+      <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+    if (window.lucide) lucide.createIcons();
+
+    requestAnimationFrame(() => {
+      toast.classList.remove('translate-y-2', 'opacity-0');
+    });
+
+    setTimeout(() => {
+      toast.classList.add('translate-y-2', 'opacity-0');
+      setTimeout(() => {
+        toast.remove();
+        if (container && container.children.length === 0) {
+          container.remove();
+        }
+      }, 300);
+    }, 3000);
+  },
+
   showPrompt({ title = 'Input Required', message = '', value = '', type = 'text', confirmText = 'Submit', onConfirm }) {
     this.confirmCallback = onConfirm;
     

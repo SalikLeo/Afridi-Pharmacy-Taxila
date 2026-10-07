@@ -1480,10 +1480,12 @@ const MasterDB = {
 
       this.closeAddStockModal();
       await this.loadData();
-      app.showToast('Stock updated & recorded in transactions.', 'success');
+      if (typeof app.showToast === 'function') {
+        app.showToast('Stock updated & recorded in transactions.', 'success');
+      }
     } catch(err) {
       console.error(err);
-      app.showAlert("Error updating stock.");
+      app.showAlert("Error updating stock: " + (err?.message || 'Unknown error'));
     } finally {
       app.hideLoading();
     }
