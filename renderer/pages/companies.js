@@ -457,6 +457,12 @@ window.Companies = {
                       <div id="np-items-list" class="space-y-1.5">
                           <!-- Dynamic rows here -->
                       </div>
+                      <div class="mt-2.5">
+                          <button type="button" onclick="Companies.addPurchaseRow(true)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-dashed border-teal-300 bg-teal-50/60 hover:bg-teal-100/70 text-teal-700 text-xs font-bold transition-all hover:border-teal-400 cursor-pointer shadow-2xs">
+                              <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                              <span>Add Item</span>
+                          </button>
+                      </div>
                   </div>
 
                   <!-- Total and Submit -->
@@ -1913,7 +1919,7 @@ window.Companies = {
     this._paidAmountManuallyEdited = false;
   },
 
-  addPurchaseRow() {
+  addPurchaseRow(autoFocus = false) {
     const list = document.getElementById('np-items-list');
     const rowId = Date.now() + Math.random().toString(36).substr(2, 4);
     const div = document.createElement('div');
@@ -1946,6 +1952,12 @@ window.Companies = {
     `;
     list.appendChild(div);
     if (window.lucide) lucide.createIcons();
+    if (autoFocus) {
+      setTimeout(() => {
+        const input = div.querySelector('.np-item-name');
+        if (input) input.focus();
+      }, 50);
+    }
   },
 
   async handleItemSearch(input) {
