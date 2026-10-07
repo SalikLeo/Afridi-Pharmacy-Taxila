@@ -1021,7 +1021,7 @@ window.SalesForm = {
 
           <!-- 11: Action Delete -->
           <td class="px-2 py-1.5 text-center">
-            <button onclick="SalesForm.removeFromCart(${idx})" class="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer" title="Remove Medicine">
+            <button onclick="SalesForm.removeFromCart(${idx})" class="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer" title="Remove Medicine">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
           </td>
@@ -1702,7 +1702,7 @@ window.SalesForm = {
                  onkeydown="if(event.key === 'Enter') { event.preventDefault(); SalesForm.addMoreBillRow(); }"
                  class="w-full bg-transparent text-xs font-black text-slate-900 outline-none text-right tabular-nums">
         </div>
-        <button type="button" onclick="SalesForm.removeMoreBillRow(${idx})" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors cursor-pointer shrink-0" title="Remove item">
+        <button type="button" onclick="SalesForm.removeMoreBillRow(${idx})" class="w-8 h-8 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 flex items-center justify-center transition-colors cursor-pointer shrink-0" title="Remove item">
           <i data-lucide="trash-2" class="w-4 h-4"></i>
         </button>
       </div>
