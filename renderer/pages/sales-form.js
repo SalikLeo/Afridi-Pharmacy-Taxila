@@ -828,6 +828,7 @@ window.SalesForm = {
         id: item.id,
         slug: itemSlug,
         item_name: item.medicine_name || item.item_name || 'Unnamed Medicine',
+        medicine_name: item.medicine_name || '',
         brand_name: item.brand_name || '',
         generic_name: item.generic_name || '',
         dosage_form: item.dosage_form || '',
@@ -1331,6 +1332,10 @@ window.SalesForm = {
       return {
         item_id: i.id,
         section: i.slug,
+        item_name: i.item_name,
+        medicine_name: i.medicine_name || '',
+        strength: i.strength || '',
+        dosage_form: i.dosage_form || '',
         description: i.description || i.item_name,
         generic_name: i.generic_name || '',
         batch_no: i.batch_no || '',
@@ -1501,6 +1506,47 @@ window.SalesForm = {
     });
   },
 
+  formatReceiptItemName(item) {
+    if (!item) return '';
+    let raw = item.item_name || (item.description ? item.description.split(' - ')[0] : '') || item.name || item.medicine_name || '';
+    // Strip trailing parenthesized text, e.g. (Ear Drops) or (Paracetamol)
+    let name = raw.replace(/\s*\([^)]*\)\s*$/, '').trim();
+
+    // If explicit dosage_form is provided on item, remove it from the end
+    if (item.dosage_form) {
+      const esc = item.dosage_form.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (esc) {
+        name = name.replace(new RegExp('\\s+' + esc + '\\s*$', 'i'), '').trim();
+      }
+    }
+
+    // List of common dosage forms to strip from end of medicine name (ordered longest first)
+    const knownForms = [
+      "Topical Solution", "Topical Gel", "Eye Ointment", "Nasal Spray", "Nasal Drops", "Nasal Drop",
+      "Ear Drops", "Eye Drops", "Eye Drop", "Ear Drop", "Suppositories", "Suspension", "Ointment",
+      "Infusion", "Injection", "Facewash", "Capsule", "Tablet", "Inhaler", "Shampoo", "Sachet",
+      "Liquid", "Powder", "Granules", "Solution", "Topical", "Cream", "Drops", "Spray", "Drips",
+      "Syrup", "Vaginal", "Tabs", "Caps", "Susp", "Oint", "Soap", "Inj", "Inf", "Syr", "Sol", "Gel"
+    ];
+    for (const form of knownForms) {
+      const formRegex = new RegExp('\\s+' + form.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*$', 'i');
+      if (formRegex.test(name)) {
+        name = name.replace(formRegex, '').trim();
+        break;
+      }
+    }
+
+    // Ensure strength is included if available and not already in name
+    if (item.strength && item.strength.trim()) {
+      const st = item.strength.trim();
+      if (!name.toLowerCase().includes(st.toLowerCase())) {
+        name = `${name} ${st}`;
+      }
+    }
+
+    return name || raw;
+  },
+
   async generateReceipt(data) {
     const previewEl = document.getElementById('preview-paper');
     if (!this.settings || !this.settings.company_name) {
@@ -1512,8 +1558,7 @@ window.SalesForm = {
 
     // 1. Medicines List (rendered first)
     (data.items || []).forEach(item => {
-      const rawName = item.item_name || (item.description ? item.description.split(' - ')[0] : '');
-      const cleanName = rawName.replace(/\s*\([^)]*\)\s*$/, '').trim();
+      const cleanName = this.formatReceiptItemName(item);
 
       rowHtml += `
         <tr>

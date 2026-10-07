@@ -2493,7 +2493,7 @@ window.Companies = {
 
         const rowHtml = items.map((item, idx) => {
             const rawName = item.name || item.item_name || '';
-            const cleanName = rawName.replace(/\s*\([^)]*\)\s*$/, '').trim() || rawName;
+            const cleanName = window.SalesForm?.formatReceiptItemName ? window.SalesForm.formatReceiptItemName(item) : (rawName.replace(/\s*\([^)]*\)\s*$/, '').trim() || rawName);
             const qty = item.qty || item.total_boxes || 1;
             const price = item.box_cost || item.price || item.carton_cost || 0;
             const lineTotal = item.lineTotal || (qty * price) || 0;
@@ -2626,7 +2626,7 @@ window.Companies = {
 
         const rowHtml = items.map((item, idx) => {
             const rawName = item.name || item.item_name || '';
-            const cleanName = rawName.replace(/\s*\([^)]*\)\s*$/, '').trim() || rawName;
+            const cleanName = window.SalesForm?.formatReceiptItemName ? window.SalesForm.formatReceiptItemName(item) : (rawName.replace(/\s*\([^)]*\)\s*$/, '').trim() || rawName);
             const qty = item.qty || item.total_boxes || 1;
             const price = item.box_cost || item.price || item.carton_cost || 0;
             const lineTotal = item.lineTotal || (qty * price) || 0;
