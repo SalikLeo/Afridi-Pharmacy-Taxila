@@ -759,22 +759,22 @@ const MasterDB = {
           </td>
 
           <!-- TP Cost -->
-          <td class="px-2 py-1.5 border-r border-slate-100 text-right font-display font-bold text-rose-700 text-[11.5px] tabular-nums">
+          <td class="px-2 py-1.5 border-r border-slate-100 text-right text-xs font-black text-rose-700">
             ${app.formatNumber(tp)}
           </td>
 
           <!-- MRP Retail -->
-          <td class="px-2 py-1.5 border-r border-slate-100 text-right font-display font-black text-emerald-700 text-[11.5px] tabular-nums">
+          <td class="px-2 py-1.5 border-r border-slate-100 text-right text-xs font-black text-emerald-700">
             ${app.formatNumber(rp)}
           </td>
 
           <!-- Profit Margin -->
-          <td class="px-2 py-1.5 border-r border-slate-100 text-right font-display font-bold text-teal-800 text-[11px] tabular-nums">
-            +${app.formatNumber(profit)} <span class="text-[9.5px] text-slate-400">(${margin}%)</span>
+          <td class="px-2 py-1.5 border-r border-slate-100 text-right text-xs font-black text-teal-800">
+            +${app.formatNumber(profit)} <span class="text-[9.5px] font-bold text-slate-400">(${margin}%)</span>
           </td>
 
           <!-- Value (Cost x Stock) -->
-          <td class="px-2 py-1.5 border-r border-slate-100 text-right font-display font-black text-indigo-950 text-[11.5px] tabular-nums">
+          <td class="px-2 py-1.5 border-r border-slate-100 text-right text-xs font-black text-indigo-950">
             Rs. ${app.formatNumber(stockVal)}
           </td>
 
