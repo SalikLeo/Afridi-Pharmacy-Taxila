@@ -461,7 +461,7 @@ window.Reports = {
           <td style="padding: 4px 4px; border-right: 1px solid #000; font-size: 10.5px;">
             <div style="font-weight: 800;">${s.proposal_number}</div>
             <div style="font-size: 9px; color: #444;">${app.formatDate(s.date || s.created_at)}</div>
-            <div style="font-size: 9.5px; font-weight: 700; margin-top: 1px;">Pt: ${s.customer_name}</div>
+            <div style="font-size: 9.5px; font-weight: 700; margin-top: 1px;">Pt: ${s.customer_name}${s.phone ? ` (${s.phone})` : ''}</div>
             ${s.doctor_name ? `<div style="font-size: 9px; color: #444;">Dr: ${s.doctor_name} ${s.doctor_reg ? `(PMDC: ${s.doctor_reg})` : ''}</div>` : ''}
           </td>
           <td style="padding: 4px 4px; border-right: 1px solid #000; font-size: 10px;">

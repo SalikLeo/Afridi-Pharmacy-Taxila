@@ -1448,8 +1448,12 @@ window.SalesForm = {
         ${finalName && !finalName.startsWith('Walk-in') ? `
         <div class="flex justify-between items-center text-slate-600">
           <span>Patient:</span>
-          <span class="font-bold text-slate-900">${finalName}</span>
-        </div>` : ''}
+          <span class="font-bold text-slate-900">${finalName}${phone ? ` (${phone})` : ''}</span>
+        </div>` : (phone ? `
+        <div class="flex justify-between items-center text-slate-600">
+          <span>Patient:</span>
+          <span class="font-bold text-slate-900">${phone}</span>
+        </div>` : '')}
         <div class="flex justify-between items-center text-slate-600">
           <span>Payment Channel:</span>
           <span class="font-bold text-teal-700 uppercase">${this.paymentMethod}</span>
@@ -1561,6 +1565,16 @@ window.SalesForm = {
     const storeAddress = data.store_address || this.settings?.address || 'Near Babu Hotel, Railway Ground, Taxila';
     const storePhone = data.store_phone || this.settings?.phone || '0333-9109092';
 
+    const custName = (data.customer_name || '').trim();
+    const isWalkIn = !custName || /^walk-in/i.test(custName);
+    const patientPhone = (data.phone || data.customer_phone || '').trim();
+    let patientDisplay = '';
+    if (!isWalkIn) {
+      patientDisplay = (patientPhone && !custName.includes(patientPhone)) ? `${custName} (${patientPhone})` : custName;
+    } else if (patientPhone) {
+      patientDisplay = patientPhone;
+    }
+
     const html = `
       <div class="receipt-80mm" style="width: 100%; max-width: 400px; margin: 0 auto; padding: 14px 16px; background: #fff; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #000; box-sizing: border-box; font-size: 12px; line-height: 1.45; border: 1px solid #ddd;">
         <!-- Header -->
@@ -1574,7 +1588,7 @@ window.SalesForm = {
         <div style="font-size: 11px; margin-bottom: 8px; border-bottom: 1px dashed #000; padding-bottom: 6px; line-height: 1.55;">
           <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Inv #:</span> <span style="font-weight: 900; font-size: 12px;">${data.proposal_number}</span></div>
           <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Date & Time:</span> <span>${app.formatDateTime(data.date)}</span></div>
-          ${data.customer_name && !data.customer_name.startsWith('Walk-in') ? `<div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Patient:</span> <span style="font-weight: bold;">${data.customer_name}</span></div>` : ''}
+          ${patientDisplay ? `<div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: bold; flex-shrink: 0; margin-right: 8px;">Patient:</span> <span style="font-weight: bold; text-align: right;">${patientDisplay}</span></div>` : ''}
           <div style="display: flex; justify-content: space-between;"><span style="font-weight: bold;">Payment:</span> <span style="font-weight: bold; text-transform: uppercase;">${data.payment_method || 'Cash'}</span></div>
         </div>
 
