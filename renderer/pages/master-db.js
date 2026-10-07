@@ -257,37 +257,37 @@ const MasterDB = {
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Strength</label>
                   <input type="text" id="db-field-strength" placeholder="e.g. 500mg" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
-                <div>
+                <div class="relative">
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Dosage Form *</label>
-                  <input type="text" id="db-field-dosage_form" list="dosage-form-list" required placeholder="e.g. Tabs" oninput="MasterDB.onDosageFormInput(this.value)" onfocus="MasterDB.onDosageFormInput(this.value)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
-                  <datalist id="dosage-form-list">
-                    <option value="Caps">
-                    <option value="Cream">
-                    <option value="Drops">
-                    <option value="Ear Drops">
-                    <option value="Eye Drops">
-                    <option value="Facewash">
-                    <option value="Inf">
-                    <option value="Inhaler">
-                    <option value="Inj">
-                    <option value="Liquid">
-                    <option value="Nasal Drop">
-                    <option value="Nasal Spray">
-                    <option value="Ointment">
-                    <option value="Sachet">
-                    <option value="Shampoo">
-                    <option value="Soap">
-                    <option value="Suspension">
-                    <option value="Syrup">
-                    <option value="Tabs">
-                    <option value="Topical">
-                    <option value="Vaginal">
-                  </datalist>
+                  <div class="relative">
+                    <input type="text" id="db-field-dosage_form" required placeholder="Select dosage form..." autocomplete="off"
+                      onclick="MasterDB.toggleDosageDropdown()"
+                      oninput="MasterDB.onDosageFormInput(this.value)"
+                      class="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none transition-all">
+                    <button type="button" id="db-clear-dosage-btn" onclick="MasterDB.clearDosageForm()" class="hidden absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer" title="Remove dosage form">
+                      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button type="button" id="db-arrow-dosage-btn" onclick="MasterDB.toggleDosageDropdown()" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-lg transition-colors cursor-pointer" tabindex="-1">
+                      <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <div id="db-dosage-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl z-[600] max-h-52 overflow-y-auto custom-scrollbar p-1"></div>
                 </div>
-                <div>
+                <div class="relative">
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Company</label>
-                  <input type="text" id="db-field-company_name" list="db-companies-datalist" placeholder="Company name" oninput="MasterDB.onCompanyInput(this.value)" onfocus="MasterDB.onCompanyInput(this.value)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
-                  <datalist id="db-companies-datalist"></datalist>
+                  <div class="relative">
+                    <input type="text" id="db-field-company_name" placeholder="Select company..." autocomplete="off"
+                      onclick="MasterDB.toggleCompanyDropdown()"
+                      oninput="MasterDB.onCompanyInput(this.value)"
+                      class="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none transition-all">
+                    <button type="button" id="db-clear-company-btn" onclick="MasterDB.clearCompany()" class="hidden absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer" title="Remove company">
+                      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button type="button" id="db-arrow-company-btn" onclick="MasterDB.toggleCompanyDropdown()" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-lg transition-colors cursor-pointer" tabindex="-1">
+                      <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <div id="db-company-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl z-[600] max-h-52 overflow-y-auto custom-scrollbar p-1"></div>
                 </div>
               </div>
             </div>
@@ -807,11 +807,10 @@ const MasterDB = {
   },
 
   onCompanySelect(compVal) {
-    const compInput = document.getElementById('db-field-company_name');
     if (compVal) {
       const comp = (this.companies || []).find(c => c.id == compVal);
-      if (comp && compInput) {
-        compInput.value = comp.name;
+      if (comp) {
+        this.selectCompany(comp.name);
       }
     }
   },
@@ -849,21 +848,165 @@ const MasterDB = {
     return [...starts, ...wordStarts, ...contains, ...others];
   },
 
-  onDosageFormInput(val) {
-    const listEl = document.getElementById('dosage-form-list');
-    if (!listEl) return;
-    const q = (val || '').toLowerCase().trim();
+  selectDosageForm(val) {
+    const input = document.getElementById('db-field-dosage_form');
+    const clearBtn = document.getElementById('db-clear-dosage-btn');
+    const arrowBtn = document.getElementById('db-arrow-dosage-btn');
+    const dropdown = document.getElementById('db-dosage-dropdown');
+    if (!input) return;
+
+    input.value = val || '';
+    if (val) {
+      input.readOnly = true;
+      input.classList.add('bg-slate-100', 'text-slate-800', 'font-black', 'cursor-default');
+      input.classList.remove('bg-white');
+      if (clearBtn) clearBtn.classList.remove('hidden');
+      if (arrowBtn) arrowBtn.classList.add('hidden');
+    } else {
+      input.readOnly = false;
+      input.classList.remove('bg-slate-100', 'text-slate-800', 'font-black', 'cursor-default');
+      input.classList.add('bg-white');
+      if (clearBtn) clearBtn.classList.add('hidden');
+      if (arrowBtn) arrowBtn.classList.remove('hidden');
+    }
+    if (dropdown) dropdown.classList.add('hidden');
+    if (window.lucide) lucide.createIcons();
+  },
+
+  clearDosageForm() {
+    const input = document.getElementById('db-field-dosage_form');
+    if (!input) return;
+    input.value = '';
+    input.readOnly = false;
+    input.classList.remove('bg-slate-100', 'text-slate-800', 'font-black', 'cursor-default');
+    input.classList.add('bg-white');
+    const clearBtn = document.getElementById('db-clear-dosage-btn');
+    const arrowBtn = document.getElementById('db-arrow-dosage-btn');
+    if (clearBtn) clearBtn.classList.add('hidden');
+    if (arrowBtn) arrowBtn.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+    input.focus();
+    this.openDosageDropdown('');
+  },
+
+  toggleDosageDropdown() {
+    const input = document.getElementById('db-field-dosage_form');
+    if (input && input.readOnly) return;
+    const dropdown = document.getElementById('db-dosage-dropdown');
+    if (!dropdown) return;
+    if (dropdown.classList.contains('hidden')) {
+      this.openDosageDropdown(input?.value || '');
+    } else {
+      dropdown.classList.add('hidden');
+    }
+  },
+
+  openDosageDropdown(query = '') {
+    const input = document.getElementById('db-field-dosage_form');
+    if (input && input.readOnly) return;
+    const dropdown = document.getElementById('db-dosage-dropdown');
+    if (!dropdown) return;
+    document.getElementById('db-company-dropdown')?.classList.add('hidden');
+
+    const q = (query || input?.value || '').toLowerCase().trim();
     const sorted = this.sortListByPrefix(this.dosageFormList, q);
-    listEl.innerHTML = sorted.map(item => `<option value="${item}">`).join('');
+    dropdown.innerHTML = sorted.map(item => `
+      <div onclick="MasterDB.selectDosageForm('${item.replace(/'/g, "\\'")}')" 
+        class="px-3 py-2 text-xs font-bold text-slate-700 hover:bg-teal-50 hover:text-teal-800 rounded-lg cursor-pointer transition-colors flex items-center justify-between">
+        <span>${item}</span>
+      </div>
+    `).join('');
+    dropdown.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  },
+
+  onDosageFormInput(val) {
+    const input = document.getElementById('db-field-dosage_form');
+    if (input && input.readOnly) return;
+    this.openDosageDropdown(val);
+  },
+
+  selectCompany(val) {
+    const input = document.getElementById('db-field-company_name');
+    const clearBtn = document.getElementById('db-clear-company-btn');
+    const arrowBtn = document.getElementById('db-arrow-company-btn');
+    const dropdown = document.getElementById('db-company-dropdown');
+    if (!input) return;
+
+    input.value = val || '';
+    if (val) {
+      input.readOnly = true;
+      input.classList.add('bg-slate-100', 'text-slate-800', 'font-black', 'cursor-default');
+      input.classList.remove('bg-white');
+      if (clearBtn) clearBtn.classList.remove('hidden');
+      if (arrowBtn) arrowBtn.classList.add('hidden');
+    } else {
+      input.readOnly = false;
+      input.classList.remove('bg-slate-100', 'text-slate-800', 'font-black', 'cursor-default');
+      input.classList.add('bg-white');
+      if (clearBtn) clearBtn.classList.add('hidden');
+      if (arrowBtn) arrowBtn.classList.remove('hidden');
+    }
+    if (dropdown) dropdown.classList.add('hidden');
+    if (window.lucide) lucide.createIcons();
+  },
+
+  clearCompany() {
+    const input = document.getElementById('db-field-company_name');
+    if (!input) return;
+    input.value = '';
+    input.readOnly = false;
+    input.classList.remove('bg-slate-100', 'text-slate-800', 'font-black', 'cursor-default');
+    input.classList.add('bg-white');
+    const clearBtn = document.getElementById('db-clear-company-btn');
+    const arrowBtn = document.getElementById('db-arrow-company-btn');
+    if (clearBtn) clearBtn.classList.add('hidden');
+    if (arrowBtn) arrowBtn.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+    input.focus();
+    this.openCompanyDropdown('');
+  },
+
+  toggleCompanyDropdown() {
+    const input = document.getElementById('db-field-company_name');
+    if (input && input.readOnly) return;
+    const dropdown = document.getElementById('db-company-dropdown');
+    if (!dropdown) return;
+    if (dropdown.classList.contains('hidden')) {
+      this.openCompanyDropdown(input?.value || '');
+    } else {
+      dropdown.classList.add('hidden');
+    }
+  },
+
+  openCompanyDropdown(query = '') {
+    const input = document.getElementById('db-field-company_name');
+    if (input && input.readOnly) return;
+    const dropdown = document.getElementById('db-company-dropdown');
+    if (!dropdown) return;
+    document.getElementById('db-dosage-dropdown')?.classList.add('hidden');
+
+    const q = (query || input?.value || '').toLowerCase().trim();
+    const compNames = (this.companies || []).map(c => c.name);
+    const sorted = this.sortListByPrefix(compNames, q);
+    if (sorted.length === 0) {
+      dropdown.innerHTML = `<div class="px-3 py-2 text-xs text-slate-400 italic">No matching companies</div>`;
+    } else {
+      dropdown.innerHTML = sorted.map(item => `
+        <div onclick="MasterDB.selectCompany('${item.replace(/'/g, "\\'")}')" 
+          class="px-3 py-2 text-xs font-bold text-slate-700 hover:bg-teal-50 hover:text-teal-800 rounded-lg cursor-pointer transition-colors flex items-center justify-between">
+          <span>${item}</span>
+        </div>
+      `).join('');
+    }
+    dropdown.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
   },
 
   onCompanyInput(val) {
-    const listEl = document.getElementById('db-companies-datalist');
-    if (!listEl) return;
-    const q = (val || '').toLowerCase().trim();
-    const compNames = (this.companies || []).map(c => c.name);
-    const sorted = this.sortListByPrefix(compNames, q);
-    listEl.innerHTML = sorted.map(item => `<option value="${item}">`).join('');
+    const input = document.getElementById('db-field-company_name');
+    if (input && input.readOnly) return;
+    this.openCompanyDropdown(val);
   },
 
   autoGenerateCode() {
@@ -908,12 +1051,10 @@ const MasterDB = {
     if (brandInput) brandInput.value = data ? (data.brand_name || medName) : '';
     document.getElementById('db-field-generic_name').value = data ? (data.generic_name || '') : '';
     
-    // Dosage form, strength, packing
-    const formInput = document.getElementById('db-field-dosage_form');
-    if (formInput) {
-      formInput.value = data ? (data.dosage_form || '') : (this._editingCatSlug && this._editingCatSlug !== 'all' ? (this.categories.find(c => c.id === this._editingCatSlug)?.label || '') : '');
-      this.onDosageFormInput(formInput.value);
-    }
+    // Dosage form selection
+    const formVal = data ? (data.dosage_form || '') : (this._editingCatSlug && this._editingCatSlug !== 'all' ? (this.categories.find(c => c.id === this._editingCatSlug)?.label || '') : '');
+    this.selectDosageForm(formVal);
+
     document.getElementById('db-field-strength').value = data ? (data.strength || '') : '';
     const packingInput = document.getElementById('db-field-packing');
     if (packingInput) packingInput.value = data ? (data.packing || '') : '';
@@ -921,11 +1062,8 @@ const MasterDB = {
     if (catCodeInput) catCodeInput.value = data ? (data.category || '') : '';
     
     // Company selection
-    const compInput = document.getElementById('db-field-company_name');
-    if (compInput) {
-      compInput.value = data ? (data.company_name || '') : '';
-      this.onCompanyInput(compInput.value);
-    }
+    const compVal = data ? (data.company_name || '') : '';
+    this.selectCompany(compVal);
 
     // Pricing
     document.getElementById('db-cost').value = data ? (data.trade_price ?? data.cost_price ?? '') : '';
@@ -968,6 +1106,8 @@ const MasterDB = {
   },
 
   closeForm() {
+    document.getElementById('db-dosage-dropdown')?.classList.add('hidden');
+    document.getElementById('db-company-dropdown')?.classList.add('hidden');
     const modal = document.getElementById('db-modal');
     modal.classList.add('opacity-0');
     document.getElementById('db-card').classList.add('scale-95');
@@ -1513,3 +1653,14 @@ const MasterDB = {
     }
   }
 };
+
+window.MasterDB = MasterDB;
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#db-field-dosage_form') && !e.target.closest('#db-dosage-dropdown') && !e.target.closest('#db-arrow-dosage-btn')) {
+    document.getElementById('db-dosage-dropdown')?.classList.add('hidden');
+  }
+  if (!e.target.closest('#db-field-company_name') && !e.target.closest('#db-company-dropdown') && !e.target.closest('#db-arrow-company-btn')) {
+    document.getElementById('db-company-dropdown')?.classList.add('hidden');
+  }
+});
