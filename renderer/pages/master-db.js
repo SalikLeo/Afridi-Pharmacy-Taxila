@@ -239,12 +239,20 @@ const MasterDB = {
                 <span>Medicine Information</span>
               </div>
 
-              <!-- Medicine Name & Dosage Form -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div class="sm:col-span-2">
+              <!-- Row 1: Medicine Name & Generic Name -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Medicine Name *</label>
                   <input type="text" id="db-field-medicine_name" required placeholder="e.g. Panadol" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
+                <div>
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Generic Name</label>
+                  <input type="text" id="db-field-generic_name" placeholder="e.g. Paracetamol" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                </div>
+              </div>
+
+              <!-- Row 2: Dosage Form, Strength & Company -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Dosage Form *</label>
                   <input type="text" id="db-field-dosage_form" list="dosage-form-list" required placeholder="e.g. Tabs" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
@@ -271,14 +279,6 @@ const MasterDB = {
                     <option value="Topical">
                     <option value="Vaginal">
                   </datalist>
-                </div>
-              </div>
-
-              <!-- Generic Formula, Strength & Company -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Generic Formula</label>
-                  <input type="text" id="db-field-generic_name" placeholder="e.g. Paracetamol" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                 </div>
                 <div>
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Strength</label>
