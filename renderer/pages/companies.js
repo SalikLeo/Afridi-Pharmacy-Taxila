@@ -2505,7 +2505,7 @@ window.Companies = {
                     ${cleanName}
                 </td>
                 <td style="border: 1px solid #000; padding: 2.5px 2px; font-size: 11.5px; text-align: center; color: #000; font-weight: bold;">${qty}</td>
-                <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11px; text-align: right; color: #000;">${app.formatAmount(price)}</td>
+                <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11.5px; text-align: right; color: #000; font-weight: bold;">${app.formatAmount(price)}</td>
                 <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11.5px; text-align: right; color: #000; font-weight: bold;">${app.formatAmount(lineTotal)}</td>
             </tr>
             `;
@@ -2638,7 +2638,7 @@ window.Companies = {
                     ${cleanName}
                 </td>
                 <td style="border: 1px solid #000; padding: 2.5px 2px; font-size: 11.5px; text-align: center; color: #000; font-weight: bold;">${qty}</td>
-                <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11px; text-align: right; color: #000;">${app.formatAmount(price)}</td>
+                <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11.5px; text-align: right; color: #000; font-weight: bold;">${app.formatAmount(price)}</td>
                 <td style="border: 1px solid #000; padding: 2.5px 4px; font-size: 11.5px; text-align: right; color: #000; font-weight: bold;">${app.formatAmount(lineTotal)}</td>
             </tr>
             `;
