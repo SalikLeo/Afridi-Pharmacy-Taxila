@@ -70,6 +70,8 @@ contextBridge.exposeInMainWorld('api', {
   backupData: () => ipcRenderer.invoke('backup-data'),
   restoreData: () => ipcRenderer.invoke('restore-data'),
   clearAppData: () => ipcRenderer.invoke('clear-app-data'),
+  clearAllStock: () => ipcRenderer.invoke('clear-all-stock'),
+  clearAllCompanies: () => ipcRenderer.invoke('clear-all-companies'),
   generatePDF: (filename) => ipcRenderer.invoke('generate-pdf', filename),
 
   // Storage Sync

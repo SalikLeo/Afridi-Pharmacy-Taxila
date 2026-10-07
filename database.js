@@ -1937,6 +1937,53 @@ function clearAllData() {
   }
 }
 
+function clearAllStock() {
+  if (!db) return { success: false, error: 'Database not initialized' };
+  try {
+    const tx = db.transaction(() => {
+      const productTables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'products_%'").all();
+      productTables.forEach(t => {
+        db.prepare(`DELETE FROM ${t.name}`).run();
+        try { db.prepare("DELETE FROM sqlite_sequence WHERE name = ?").run(t.name); } catch(e) {}
+      });
+      try {
+        db.prepare('DELETE FROM favorites').run();
+        db.prepare("DELETE FROM sqlite_sequence WHERE name = 'favorites'").run();
+      } catch(e) {}
+    });
+    tx();
+    try {
+      db.pragma('wal_checkpoint(TRUNCATE)');
+    } catch(e) {}
+    return { success: true };
+  } catch(err) {
+    console.error('Failed to clear all stock:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+function clearAllCompanies() {
+  if (!db) return { success: false, error: 'Database not initialized' };
+  try {
+    const tx = db.transaction(() => {
+      db.prepare('DELETE FROM companies').run();
+      try { db.prepare("DELETE FROM sqlite_sequence WHERE name = 'companies'").run(); } catch(e) {}
+      const keys = db.prepare("SELECT key FROM app_kv_store WHERE key LIKE 'companies-%' OR key LIKE 'company_%'").all();
+      keys.forEach(k => {
+        db.prepare("DELETE FROM app_kv_store WHERE key = ?").run(k.key);
+      });
+    });
+    tx();
+    try {
+      db.pragma('wal_checkpoint(TRUNCATE)');
+    } catch(e) {}
+    return { success: true };
+  } catch(err) {
+    console.error('Failed to clear all companies:', err);
+    return { success: false, error: err.message };
+  }
+}
+
 async function backupDatabase(destinationPath) {
   if (!db) throw new Error('Database not initialized');
   
@@ -1973,7 +2020,7 @@ async function backupDatabase(destinationPath) {
 }
 
 module.exports = {
-  init, getDbPath, close, clearAllData, backupDatabase,
+  init, getDbPath, close, clearAllData, clearAllStock, clearAllCompanies, backupDatabase,
   getSettings, saveSettings,
   getProducts, getPaginatedProducts, addProduct, updateProduct, deleteProduct,
   getCategoryLabels, updateCategoryLabel, searchAllProducts, getCategoryStats, addCategory, deleteCategory,

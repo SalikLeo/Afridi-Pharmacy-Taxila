@@ -241,6 +241,24 @@ ipcMain.handle('clear-app-data', async () => {
   }
 });
 
+ipcMain.handle('clear-all-stock', async () => {
+  try {
+    return db.clearAllStock();
+  } catch (err) {
+    console.error('Clear all stock error:', err);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('clear-all-companies', async () => {
+  try {
+    return db.clearAllCompanies();
+  } catch (err) {
+    console.error('Clear all companies error:', err);
+    return { success: false, error: err.message };
+  }
+});
+
 // KV Store IPC
 ipcMain.handle('get-all-kv', () => db.getAllKv());
 ipcMain.handle('set-kv', (event, key, value) => db.setKv(key, value));

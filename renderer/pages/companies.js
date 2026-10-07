@@ -1254,6 +1254,32 @@ window.Companies = {
     });
   },
 
+  confirmDeleteAllCompanies() {
+    app.showConfirm({
+      title: 'Delete All Companies?',
+      message: 'Are you sure you want to permanently delete ALL companies and suppliers from the database? This action cannot be undone.',
+      confirmText: 'Delete All',
+      confirmColor: 'red',
+      onConfirm: async () => {
+        app.showLoading();
+        try {
+          const res = await window.api.clearAllCompanies();
+          if (res && res.success) {
+            app.showToast('All companies deleted successfully', 'success');
+            await this.loadCompanies();
+          } else {
+            app.showToast('Failed to delete companies: ' + (res?.error || 'Unknown error'), 'error');
+          }
+        } catch (err) {
+          console.error('Error deleting companies:', err);
+          app.showToast('Error deleting companies', 'error');
+        } finally {
+          app.hideLoading();
+        }
+      }
+    });
+  },
+
   async switchView(viewName) {
     this.currentView = viewName;
     const txnsView = document.getElementById('purchases-txns-view');
@@ -1270,6 +1296,9 @@ window.Companies = {
 
       if (headerActions) {
         headerActions.innerHTML = `
+          <button onclick="Companies.confirmDeleteAllCompanies()" class="h-9 px-3.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 hover:border-rose-300 text-rose-700 font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer" title="Permanently delete all companies from database">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i> <span>Delete All Companies</span>
+          </button>
           <button onclick="Companies.switchView('transactions')" class="h-9 px-3.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer">
             <i data-lucide="list" class="w-3.5 h-3.5 text-slate-400"></i> <span>Transactions</span>
           </button>

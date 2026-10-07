@@ -201,6 +201,11 @@ const MasterDB = {
                   <option value="200">200</option>
                 </select>
               </div>
+              <div class="pl-2.5 border-l border-slate-200">
+                <button onclick="MasterDB.confirmDeleteAllStock()" class="h-7.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 hover:border-rose-300 font-black text-xs rounded-lg flex items-center gap-1.5 transition-all shadow-2xs active:scale-95 cursor-pointer" title="Permanently delete all medicines and stock">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i> Delete All Stock
+                </button>
+              </div>
             </div>
 
             <div class="flex items-center gap-1.5" id="db-pagination-controls">
@@ -1106,6 +1111,32 @@ const MasterDB = {
         await window.api.deleteProduct(cat, id);
         await this.loadData();
         app.hideLoading();
+      }
+    });
+  },
+
+  confirmDeleteAllStock() {
+    app.showConfirm({
+      title: 'Delete All Stock Items?',
+      message: 'Are you sure you want to permanently delete ALL medicines and stock items from the database? This action cannot be undone.',
+      confirmText: 'Delete All Stock',
+      confirmColor: 'red',
+      onConfirm: async () => {
+        app.showLoading();
+        try {
+          const res = await window.api.clearAllStock();
+          if (res && res.success) {
+            app.showToast('All stock items deleted successfully', 'success');
+            await this.init();
+          } else {
+            app.showToast('Failed to delete stock: ' + (res?.error || 'Unknown error'), 'error');
+          }
+        } catch (err) {
+          console.error('Clear stock error:', err);
+          app.showToast('Error deleting stock items', 'error');
+        } finally {
+          app.hideLoading();
+        }
       }
     });
   },
