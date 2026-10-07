@@ -55,14 +55,14 @@ function migrateOldSettings() {
       db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('logo_path', ?)").run('');
     }
 
-    // Ensure company address and phone are updated to current store details
+    // Ensure company address and phone are initialized if empty
     const currentAddr = db.prepare("SELECT value FROM settings WHERE key = 'address'").get();
-    if (!currentAddr || currentAddr.value === 'Taxila, Rawalpindi' || currentAddr.value.includes('Lahore') || !currentAddr.value.trim()) {
+    if (!currentAddr || !currentAddr.value || !currentAddr.value.trim()) {
       db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('address', ?)").run('Near Babu Hotel, Railway Ground, Taxila');
     }
 
     const currentPhone = db.prepare("SELECT value FROM settings WHERE key = 'phone'").get();
-    if (!currentPhone || currentPhone.value === '051-4567890' || currentPhone.value === '0300-4567890' || currentPhone.value === '0309-5369472' || !currentPhone.value.trim() || (currentPhone.value.replace(/\D/g, '').length !== 11)) {
+    if (!currentPhone || !currentPhone.value || !currentPhone.value.trim()) {
       db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('phone', ?)").run('0333-9109092');
     }
 
@@ -267,6 +267,9 @@ function createTables() {
     patient_age TEXT,
     patient_gender TEXT,
     prescription_no TEXT,
+    store_name TEXT,
+    store_address TEXT,
+    store_phone TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
@@ -290,6 +293,9 @@ function createTables() {
     { name: 'patient_age', type: 'TEXT' },
     { name: 'patient_gender', type: 'TEXT' },
     { name: 'prescription_no', type: 'TEXT' },
+    { name: 'store_name', type: 'TEXT' },
+    { name: 'store_address', type: 'TEXT' },
+    { name: 'store_phone', type: 'TEXT' },
     { name: 'created_at', type: 'DATETIME DEFAULT CURRENT_TIMESTAMP' }
   ];
   requiredPropCols.forEach(col => {
@@ -297,6 +303,20 @@ function createTables() {
       try { db.exec(`ALTER TABLE proposals ADD COLUMN ${col.name} ${col.type}`); } catch(e) {}
     }
   });
+
+  // Backfill historical proposals with current snapshot store info so their receipts remain frozen
+  try {
+    const curName = db.prepare("SELECT value FROM settings WHERE key = 'company_name'").get()?.value || 'Afridi Diagnostic Centre';
+    const curAddr = db.prepare("SELECT value FROM settings WHERE key = 'address'").get()?.value || 'Near Babu Hotel, Railway Ground, Taxila';
+    const curPhone = db.prepare("SELECT value FROM settings WHERE key = 'phone'").get()?.value || '0333-9109092';
+    db.prepare(`
+      UPDATE proposals 
+      SET store_name = COALESCE(store_name, ?),
+          store_address = COALESCE(store_address, ?),
+          store_phone = COALESCE(store_phone, ?)
+      WHERE store_name IS NULL OR store_address IS NULL OR store_phone IS NULL
+    `).run(curName, curAddr, curPhone);
+  } catch(e) {}
 
   // Proposal Items
   db.exec(`CREATE TABLE IF NOT EXISTS proposal_items (

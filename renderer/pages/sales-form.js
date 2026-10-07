@@ -1268,6 +1268,9 @@ window.SalesForm = {
       customer_name: finalName,
       phone: phone,
       date: new Date().toISOString(),
+      store_name: this.settings?.company_name || 'AFRIDI DIAGNOSTIC CENTRE',
+      store_address: this.settings?.address || 'Near Babu Hotel, Railway Ground, Taxila',
+      store_phone: this.settings?.phone || '0333-9109092',
       retail_total: grandTotal,
       cost_total: totalCost,
       profit: totalProfit,
@@ -1439,13 +1442,17 @@ window.SalesForm = {
     const moreBillSum = (moreBillList || []).reduce((s, i) => s + (parseFloat(i.amount) || 0), 0) || (data.fees || 0);
     const grossTotal = (data.items || []).reduce((s, i) => s + (i.qty * (i.unit_retail || 0)), 0) + moreBillSum;
 
+    const storeName = data.store_name || this.settings?.company_name || 'AFRIDI DIAGNOSTIC CENTRE';
+    const storeAddress = data.store_address || this.settings?.address || 'Near Babu Hotel, Railway Ground, Taxila';
+    const storePhone = data.store_phone || this.settings?.phone || '0333-9109092';
+
     const html = `
       <div class="receipt-80mm" style="width: 100%; max-width: 400px; margin: 0 auto; padding: 14px 16px; background: #fff; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #000; box-sizing: border-box; font-size: 12px; line-height: 1.45; border: 1px solid #ddd;">
         <!-- Header -->
         <div style="text-align: center; margin-bottom: 10px; border-bottom: 1.5px solid #000; padding-bottom: 8px;">
-          <h1 style="font-size: 20px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; color: #000; line-height: 1.2;">${this.settings.company_name || 'AFRIDI DIAGNOSTIC CENTRE'}</h1>
-          <p style="font-size: 11.5px; margin: 3px 0 1px; font-weight: bold; color: #000;">${this.settings.address || 'Near Babu Hotel, Railway Ground, Taxila'}</p>
-          <p style="font-size: 10.5px; margin: 1px 0 0; font-weight: bold; color: #000;">Ph: ${this.settings.phone || '0333-9109092'}</p>
+          <h1 style="font-size: 20px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; color: #000; line-height: 1.2;">${storeName}</h1>
+          <p style="font-size: 11.5px; margin: 3px 0 1px; font-weight: bold; color: #000;">${storeAddress}</p>
+          <p style="font-size: 10.5px; margin: 1px 0 0; font-weight: bold; color: #000;">Ph: ${storePhone}</p>
         </div>
         
         <!-- Metadata -->

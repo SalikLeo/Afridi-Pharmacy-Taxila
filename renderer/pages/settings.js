@@ -28,10 +28,10 @@ const Settings = {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start pb-8">
           <!-- Pharmacy / Medicos Profile -->
           <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+              <div class="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <i data-lucide="building" class="w-5 h-5 text-teal-600"></i>
-                <h3 class="font-bold text-lg text-slate-700">Pharmacy & Regulatory Profile</h3>
+                <h3 class="font-bold text-lg text-slate-700">Afridi Diagnostic Centre Profile</h3>
               </div>
             </div>
             
@@ -53,7 +53,7 @@ const Settings = {
                   <input type="hidden" id="set-logo-path">
                 </div>
                 <div class="flex-1 pt-1">
-                  <h4 class="font-bold text-slate-800 text-sm mb-1">Pharmacy Header Logo</h4>
+                  <h4 class="font-bold text-slate-800 text-sm mb-1">Centre Header Logo</h4>
                   <p class="text-[11px] text-slate-400 mb-2">Used on POS receipts, thermal cash memos, and reports.</p>
                   <div class="flex gap-2">
                     <button type="button" onclick="Settings.selectLogo()" class="px-3 py-1.5 border border-slate-200 hover:border-slate-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all cursor-pointer">Choose File</button>
@@ -66,7 +66,7 @@ const Settings = {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                 <div class="md:col-span-2">
                   <div class="flex items-center justify-between mb-1">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase">Pharmacy / Store Name</label>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase">Centre / Store Name</label>
                     <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3 text-slate-400"></i> Locked</span>
                   </div>
                   <input type="text" id="set-name" readonly disabled placeholder="Pharmacy Name" class="w-full bg-slate-100/90 border border-slate-200 rounded-lg p-2.5 text-sm font-bold text-slate-600 cursor-not-allowed select-none outline-none">
@@ -91,11 +91,8 @@ const Settings = {
                 </div>
 
                 <div class="md:col-span-2">
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase">Pharmacy Physical Address</label>
-                    <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3 text-slate-400"></i> Locked</span>
-                  </div>
-                  <textarea id="set-address" rows="2" readonly disabled class="w-full bg-slate-100/90 border border-slate-200 rounded-lg p-2.5 text-xs font-semibold text-slate-600 cursor-not-allowed select-none outline-none resize-none" placeholder="Pharmacy address"></textarea>
+                  <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Physical Address (Printed on Receipts)</label>
+                  <textarea id="set-address" rows="2" class="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-xs font-semibold text-slate-800 focus:border-teal-500 outline-none resize-none" placeholder="e.g. Near Babu Hotel, Railway Ground, Taxila"></textarea>
                 </div>
 
                 <div class="md:col-span-2">
