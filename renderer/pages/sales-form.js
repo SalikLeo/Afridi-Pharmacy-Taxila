@@ -554,14 +554,17 @@ window.SalesForm = {
     clearTimeout(this._searchTimer);
     this._searchTimer = setTimeout(async () => {
       const results = await window.api.searchAllProducts(query);
-      // Filter out items already present in the cart
+      // Mark items already present in the cart
       const cartKeys = new Set(this.cart.map(c => `${c.slug || 'tablet'}-${c.id}`));
-      let filtered = (results || []).filter(item => !cartKeys.has(`${item.slug || 'tablet'}-${item.id}`));
+      let itemsList = (results || []).map(item => ({
+        ...item,
+        inCart: cartKeys.has(`${item.slug || 'tablet'}-${item.id}`)
+      }));
 
       // Prioritize items starting with query, then word starts, then generic, then alphabetical
       const qClean = (query || '').toLowerCase().trim();
       if (qClean) {
-        filtered.sort((a, b) => {
+        itemsList.sort((a, b) => {
           const aName = (a.medicine_name || a.item_name || '').toLowerCase();
           const bName = (b.medicine_name || b.item_name || '').toLowerCase();
           const aStarts = aName.startsWith(qClean);
@@ -582,15 +585,17 @@ window.SalesForm = {
           return aName.localeCompare(bName);
         });
       } else {
-        filtered.sort((a, b) => {
+        itemsList.sort((a, b) => {
           const nameA = (a.medicine_name || a.item_name || '').toUpperCase();
           const nameB = (b.medicine_name || b.item_name || '').toUpperCase();
           return nameA.localeCompare(nameB);
         });
       }
 
-      this.searchResults = filtered.slice(0, 50);
-      this.selectedSearchIndex = 0; // Default first item highlighted!
+      this.searchResults = itemsList.slice(0, 50);
+      // Default to the first available (not yet added) item if possible
+      const firstAvailable = this.searchResults.findIndex(item => !item.inCart);
+      this.selectedSearchIndex = firstAvailable >= 0 ? firstAvailable : 0;
       this.renderSearchDropdown();
     }, 40);
   },
@@ -619,6 +624,42 @@ window.SalesForm = {
       const price = item.retail_price || 0;
       const stock = item.current_stock || 0;
       const isLowStock = stock <= (item.min_stock_level || 5);
+      const inCart = !!item.inCart;
+
+      if (inCart) {
+        return `
+        <div id="sf-search-item-${idx}" 
+             onclick="SalesForm.selectSearchResult(${idx})"
+             class="px-3.5 py-2 transition-all cursor-not-allowed flex items-center justify-between gap-3 bg-slate-100/90 border-l-4 border-emerald-500 opacity-80 select-none ${isSelected ? 'ring-2 ring-emerald-500 ring-inset' : ''}">
+          
+          <!-- Left: Name & Formula -->
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 flex-wrap leading-tight">
+              <span class="text-xs font-black text-slate-700">${displayName}</span>
+              ${brandName && brandName !== displayName ? `<span class="text-[11px] text-slate-500 font-semibold">(${brandName})</span>` : ''}
+              ${form ? `<span class="text-[9.5px] px-1.5 py-0.2 rounded font-black uppercase bg-slate-200 text-slate-600">${form}</span>` : ''}
+              ${strength ? `<span class="text-[10px] font-bold text-slate-500">${strength}</span>` : ''}
+              ${packing ? `<span class="text-[10px] font-semibold text-slate-400">(${packing})</span>` : ''}
+              <span class="text-[9.5px] px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800 tracking-wider flex items-center gap-1 shrink-0 ml-1">
+                <i class="fas fa-check-circle text-[9px] text-emerald-600"></i> Added
+              </span>
+            </div>
+            ${item.generic_name ? `<div class="text-[10.5px] truncate mt-0.5 text-slate-500 font-medium">${item.generic_name}</div>` : ''}
+          </div>
+
+          <!-- Right: Stock, Rack & MRP -->
+          <div class="flex items-center gap-3 shrink-0 text-right">
+            ${item.rack_shelf ? `<span class="text-[10px] font-bold text-slate-400">${item.rack_shelf}</span>` : ''}
+            <span class="text-[10px] font-black px-1.5 py-0.5 rounded tabular-nums bg-slate-200 text-slate-600">
+              Stock: ${stock}
+            </span>
+            <span class="text-xs font-black font-display tabular-nums text-slate-500">
+              Rs. ${app.formatNumber(price)}
+            </span>
+          </div>
+        </div>
+        `;
+      }
 
       return `
         <div id="sf-search-item-${idx}" 
@@ -687,6 +728,12 @@ window.SalesForm = {
   selectSearchResult(index) {
     const item = this.searchResults[index];
     if (!item) return;
+
+    if (item.inCart) {
+      const name = item.medicine_name || item.item_name || 'This medicine';
+      app.showToast(`"${name}" is already added to the cart`, 'info');
+      return;
+    }
 
     this.addToCart(item);
 

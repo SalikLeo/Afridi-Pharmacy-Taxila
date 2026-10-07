@@ -1994,7 +1994,7 @@ window.Companies = {
       items.sort((a, b) => (a.item_name || '').localeCompare(b.item_name || ''));
     }
 
-    // Filter out items already selected in other rows
+    // Mark items already selected in other rows
     const selectedKeys = new Set();
     document.querySelectorAll('#np-items-list > div').forEach(row => {
       if (row === currentRow) return;
@@ -2007,15 +2007,19 @@ window.Companies = {
       }
     });
 
-    const filteredItems = items.filter(item => {
+    const mappedItems = items.map(item => {
       const key = `${item.slug}_${item.id}`;
-      return !selectedKeys.has(key);
+      const isSelected = selectedKeys.has(key) || selectedKeys.has(String(item.id));
+      return {
+        ...item,
+        alreadySelected: isSelected
+      };
     });
 
-    if (filteredItems.length === 0) {
+    if (mappedItems.length === 0) {
         resultsContainer.innerHTML = `
           <div class="p-3 text-center text-xs text-slate-400 font-medium italic">
-            ${query ? 'No matching items found' : 'All available stock items have already been selected'}
+            No matching items found
           </div>
         `;
         resultsContainer.classList.remove('hidden');
@@ -2023,10 +2027,27 @@ window.Companies = {
     }
 
     this._searchCache = this._searchCache || {};
-    this._searchCache[currentRow.id] = filteredItems;
+    this._searchCache[currentRow.id] = mappedItems;
 
-    resultsContainer.innerHTML = filteredItems.map((item, idx) => {
+    resultsContainer.innerHTML = mappedItems.map((item, idx) => {
         const stockBoxes = item.current_stock || 0;
+        if (item.alreadySelected) {
+          const safeName = (item.item_name || 'Item').replace(/'/g, "\\'");
+          return `
+          <div onclick="app.showToast('${safeName} is already added in another row', 'info')" class="p-2.5 bg-slate-50/80 cursor-not-allowed opacity-65 border-b border-slate-100 last:border-none transition-colors select-none">
+              <div class="flex justify-between items-center gap-2">
+                  <div class="flex items-center gap-1.5 truncate">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-tight truncate">${item.item_name}${item.medicine_code ? ` <span class="text-slate-400 font-semibold text-[10px] normal-case">(${item.medicine_code})</span>` : ''}</span>
+                    <span class="text-[9px] font-black uppercase px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded">Added</span>
+                  </div>
+                  <div class="flex gap-1.5 items-center shrink-0">
+                    <span class="text-[10px] font-bold bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded whitespace-nowrap">Rs. ${(item.cost_price || 0).toLocaleString()}</span>
+                    <span class="text-[10px] font-bold bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-full whitespace-nowrap">${stockBoxes} Qty</span>
+                  </div>
+              </div>
+          </div>
+          `;
+        }
         return `
         <div onclick="Companies.selectItemByIndex('${currentRow.id}', ${idx})" class="p-2.5 hover:bg-slate-100 cursor-pointer border-b border-slate-100 last:border-none transition-colors">
             <div class="flex justify-between items-center gap-2">
@@ -2050,7 +2071,7 @@ window.Companies = {
 
   selectItem(rowId, item) {
     const row = document.getElementById(rowId);
-    if (!row || !item) return;
+    if (!row || !item || item.alreadySelected) return;
     const input = row.querySelector('.np-item-name');
     const idInput = row.querySelector('.np-item-id');
     const slugInput = row.querySelector('.np-item-slug');
