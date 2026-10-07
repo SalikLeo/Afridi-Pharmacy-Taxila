@@ -285,8 +285,8 @@ const MasterDB = {
                   </datalist>
                 </div>
                 <div>
-                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Company *</label>
-                  <input type="text" id="db-field-company_name" list="db-companies-datalist" required placeholder="Company name" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <label class="block text-xs font-black text-slate-700 uppercase mb-1">Company</label>
+                  <input type="text" id="db-field-company_name" list="db-companies-datalist" placeholder="Company name" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                   <datalist id="db-companies-datalist"></datalist>
                 </div>
               </div>
