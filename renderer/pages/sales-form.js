@@ -251,7 +251,7 @@ window.SalesForm = {
                 <tr>
                   <th class="px-2 py-2 text-center w-9 border-r border-slate-200">#</th>
                   <th class="px-3 py-2 border-r border-slate-200 min-w-[260px]">Item / Description</th>
-                  <th class="px-2.5 py-2 border-r border-slate-200 text-center w-28">Dosage & Strength</th>
+                  <th class="px-2.5 py-2 border-r border-slate-200 text-center w-28">Strength</th>
                   <th class="px-2 py-2 border-r border-slate-200 text-center w-24">Packing</th>
                   <th class="px-2.5 py-2 border-r border-slate-200 text-right w-24">MRP (Rs.)</th>
                   <th class="px-2 py-2 border-r border-slate-200 text-center w-20 text-indigo-900 bg-indigo-50/40">Qty</th>
@@ -969,10 +969,10 @@ window.SalesForm = {
             ${item.generic_name ? `<div class="text-[10.5px] font-bold text-teal-600 mt-0.5">${item.generic_name}</div>` : ''}
           </td>
 
-          <!-- 3: Dosage & Strength -->
+          <!-- 3: Strength -->
           <td class="px-2.5 py-1.5 border-r border-slate-100 text-center">
-            <span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-black text-[10.5px] border border-slate-200">${item.dosage_form || '-'}</span>
-            ${item.strength ? `<span class="block text-[10px] font-bold text-slate-600 mt-0.5">${item.strength}</span>` : ''}
+            <span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-black text-[10.5px] border border-slate-200">${item.strength || item.dosage_form || '-'}</span>
+            ${item.strength && item.dosage_form ? `<span class="block text-[10px] font-bold text-slate-500 mt-0.5">${item.dosage_form}</span>` : ''}
           </td>
 
           <!-- 4: Packing -->
