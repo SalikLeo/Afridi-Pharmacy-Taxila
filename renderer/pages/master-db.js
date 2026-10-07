@@ -126,12 +126,10 @@ const MasterDB = {
               <thead class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase text-[11px] font-black tracking-wider sticky top-0 z-10 shadow-xs" id="db-thead">
                 <tr>
                   <th class="px-2 py-2 text-center w-10 border-r border-slate-200">#</th>
-                  <th class="px-2.5 py-2 border-r border-slate-200 text-center w-24">Med Code</th>
-                  <th class="px-3 py-2 border-r border-slate-200 min-w-[200px]">Medicine Name / Brand / Generic</th>
+                  <th class="px-3 py-2 border-r border-slate-200 min-w-[200px]">Medicine Name / Generic</th>
+                  <th class="px-2.5 py-2 border-r border-slate-200 min-w-[120px]">Company</th>
                   <th class="px-2.5 py-2 border-r border-slate-200 text-center">Form</th>
                   <th class="px-2.5 py-2 border-r border-slate-200 text-center">Strength</th>
-                  <th class="px-2.5 py-2 border-r border-slate-200 text-center">Packing</th>
-                  <th class="px-2.5 py-2 border-r border-slate-200 text-center">Category</th>
                   <th class="px-2 py-2 text-center border-r border-slate-200">Expiry</th>
                   <th class="px-2 py-2 text-center border-r border-slate-200">Shelf/Rack</th>
                   <th class="px-2 py-2 text-center border-r border-slate-200 text-teal-800 bg-teal-50/50">Stock</th>
@@ -515,7 +513,7 @@ const MasterDB = {
 
     const tbody = document.getElementById('db-tbody');
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="14" class="px-4 py-8 text-center text-slate-400 font-medium text-xs"><div class="flex items-center justify-center gap-2"><div class="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div> Loading medicines...</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="12" class="px-4 py-8 text-center text-slate-400 font-medium text-xs"><div class="flex items-center justify-center gap-2"><div class="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div> Loading medicines...</div></td></tr>`;
     }
 
     try {
@@ -542,7 +540,7 @@ const MasterDB = {
     } catch(err) {
       console.error('Failed to fetch paginated products:', err);
       if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="14" class="px-4 py-8 text-center text-rose-500 font-medium text-xs">Error loading data. Please try again.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="12" class="px-4 py-8 text-center text-rose-500 font-medium text-xs">Error loading data. Please try again.</td></tr>`;
       }
     }
   },
@@ -690,7 +688,7 @@ const MasterDB = {
     if (!tbody) return;
 
     if (!list || list.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="14" class="px-4 py-8 text-center text-slate-400 italic font-medium text-xs">No medicines found matching your search.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="12" class="px-4 py-8 text-center text-slate-400 italic font-medium text-xs">No medicines found matching your search.</td></tr>`;
       return;
     }
 
@@ -723,17 +721,16 @@ const MasterDB = {
       return `
         <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100 group">
           <td class="px-2 py-1.5 border-r border-slate-100 text-center font-bold text-slate-400 tabular-nums">${startIdx + index + 1}</td>
-          
-          <!-- Medicine Code -->
-          <td class="px-2.5 py-1.5 border-r border-slate-100 text-center">
-            <span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[10.5px] border border-slate-200 shadow-2xs">${p.medicine_code || '-'}</span>
-          </td>
 
-          <!-- Medicine Name + Brand + Generic Formula -->
+          <!-- Medicine Name + Generic Formula -->
           <td class="px-3 py-1.5 border-r border-slate-100 min-w-[200px]">
             <div class="font-black text-slate-900 leading-tight">${displayName} ${brandName && brandName !== displayName ? `<span class="text-slate-500 font-semibold text-[11px]">(${brandName})</span>` : ''}</div>
             ${p.generic_name ? `<div class="text-[10.5px] font-bold text-teal-600 mt-0.5">${p.generic_name}</div>` : ''}
-            ${p.company_name ? `<div class="text-[9.5px] font-semibold text-slate-400 mt-0.5">${p.company_name}</div>` : ''}
+          </td>
+
+          <!-- Company -->
+          <td class="px-2.5 py-1.5 border-r border-slate-100 min-w-[120px]">
+            <span class="font-bold text-slate-700 text-[11px]">${p.company_name || '-'}</span>
           </td>
 
           <!-- Dosage Form -->
@@ -744,16 +741,6 @@ const MasterDB = {
           <!-- Strength -->
           <td class="px-2.5 py-1.5 border-r border-slate-100 text-center text-slate-700 font-bold text-[10.5px]">
             ${p.strength || '-'}
-          </td>
-
-          <!-- Packing -->
-          <td class="px-2.5 py-1.5 border-r border-slate-100 text-center text-slate-600 font-bold text-[10.5px]">
-            ${p.packing || '-'}
-          </td>
-
-          <!-- Category Code -->
-          <td class="px-2.5 py-1.5 border-r border-slate-100 text-center text-slate-600 font-bold text-[10.5px]">
-            ${p.category ? `<span class="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded text-[10px] font-black border border-indigo-200">${p.category}</span>` : '-'}
           </td>
 
           <!-- Expiry -->

@@ -706,8 +706,51 @@ function getPaginatedProducts(options = {}) {
   const qClean = (query || '').trim();
   const qFuzzy = `%${qClean}%`;
 
+  const existingTables = new Set(
+    db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'products_%'").all().map(r => r.name)
+  );
+
   const labels = getCategoryLabels();
-  const activeSlugs = (category && category !== 'all') ? [category] : labels.map(l => l.slug);
+  const rawSlugs = (category && category !== 'all') ? [category] : labels.map(l => l.slug);
+  const activeSlugs = rawSlugs.filter(cat => existingTables.has('products_' + cat));
+
+  if (activeSlugs.length === 0) {
+    return {
+      items: [],
+      totalCount: 0,
+      totalStock: 0,
+      totalCostValue: 0,
+      totalRetailValue: 0,
+      page: 1,
+      pageSize: validPageSize,
+      totalPages: 1
+    };
+  }
+
+  const selectColumns = (cat) => `
+    p.id,
+    COALESCE(p.medicine_code, '') as medicine_code,
+    COALESCE(p.medicine_name, p.item_name, '') as medicine_name,
+    COALESCE(p.item_name, p.medicine_name, '') as item_name,
+    COALESCE(p.brand_name, '') as brand_name,
+    COALESCE(p.generic_name, '') as generic_name,
+    COALESCE(p.dosage_form, '') as dosage_form,
+    COALESCE(p.strength, '') as strength,
+    COALESCE(p.packing, '') as packing,
+    COALESCE(p.category, '') as category,
+    COALESCE(c.name, p.company_name, '') as company_name,
+    p.company_id,
+    COALESCE(p.trade_price, p.cost_price, 0) as trade_price,
+    COALESCE(p.cost_price, p.trade_price, 0) as cost_price,
+    COALESCE(p.retail_price, 0) as retail_price,
+    COALESCE(p.current_stock, 0) as current_stock,
+    COALESCE(p.min_stock_level, 5) as min_stock_level,
+    COALESCE(p.expiry_date, '') as expiry_date,
+    COALESCE(p.rack_shelf, '') as rack_shelf,
+    COALESCE(p.batch_no, '') as batch_no,
+    (f.id IS NOT NULL) as is_favorite,
+    '${cat}' as slug
+  `;
 
   if (activeSlugs.length === 1) {
     const cat = activeSlugs[0];
@@ -767,7 +810,7 @@ function getPaginatedProducts(options = {}) {
     const totalRetailValue = stats.totalRetailValue || 0;
 
     const dataSql = `
-      SELECT p.*, COALESCE(c.name, p.company_name) as company_name, (f.id IS NOT NULL) as is_favorite, '${cat}' as slug
+      SELECT ${selectColumns(cat)}
       FROM products_${cat} p
       LEFT JOIN favorites f ON f.category_slug = '${cat}' AND f.product_id = p.id
       LEFT JOIN companies c ON c.id = p.company_id
@@ -792,8 +835,7 @@ function getPaginatedProducts(options = {}) {
   const unionQueries = [];
   const unionParams = [];
 
-  labels.forEach(l => {
-    const cat = l.slug;
+  activeSlugs.forEach(cat => {
     const whereClauses = [];
     const params = [];
 
@@ -834,7 +876,7 @@ function getPaginatedProducts(options = {}) {
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
     unionQueries.push(`
-      SELECT p.*, COALESCE(c.name, p.company_name) as company_name, (f.id IS NOT NULL) as is_favorite, '${cat}' as slug
+      SELECT ${selectColumns(cat)}
       FROM products_${cat} p
       LEFT JOIN favorites f ON f.category_slug = '${cat}' AND f.product_id = p.id
       LEFT JOIN companies c ON c.id = p.company_id
