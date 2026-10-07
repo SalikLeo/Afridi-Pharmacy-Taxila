@@ -201,11 +201,6 @@ const MasterDB = {
                   <option value="200">200</option>
                 </select>
               </div>
-              <div class="pl-2.5 border-l border-slate-200">
-                <button onclick="MasterDB.confirmDeleteAllStock()" class="h-7.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 hover:border-rose-300 font-black text-xs rounded-lg flex items-center gap-1.5 transition-all shadow-2xs active:scale-95 cursor-pointer" title="Permanently delete all medicines and stock">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i> Delete All Stock
-                </button>
-              </div>
             </div>
 
             <div class="flex items-center gap-1.5" id="db-pagination-controls">

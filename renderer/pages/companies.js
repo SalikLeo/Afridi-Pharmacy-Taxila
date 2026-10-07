@@ -1296,9 +1296,6 @@ window.Companies = {
 
       if (headerActions) {
         headerActions.innerHTML = `
-          <button onclick="Companies.confirmDeleteAllCompanies()" class="h-9 px-3.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 hover:border-rose-300 text-rose-700 font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer" title="Permanently delete all companies from database">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i> <span>Delete All Companies</span>
-          </button>
           <button onclick="Companies.switchView('transactions')" class="h-9 px-3.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer">
             <i data-lucide="list" class="w-3.5 h-3.5 text-slate-400"></i> <span>Transactions</span>
           </button>
