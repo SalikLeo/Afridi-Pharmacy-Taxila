@@ -753,16 +753,9 @@ window.Companies = {
           </div>
         </td>
         <td class="px-4 py-1 tabular-nums border-r border-slate-200 text-xs">
-          <div class="flex flex-col">
-            <span class="text-xs font-bold ${c.amount > 0 ? 'text-emerald-700' : 'text-slate-400'}">
-              ${app.formatCurrency(c.amount || 0)}
-            </span>
-            ${this.currentCompPeriod !== 'all' ? (
-              c.periodPurchases > 0 ? 
-              `<span class="text-[9px] font-black text-rose-600 bg-rose-50 px-1 py-0.5 rounded w-fit mt-0.5 border border-rose-100">+${app.formatCurrency(c.periodPurchases)}</span>` : 
-              (c.periodPayments > 0 ? `<span class="text-[9px] font-black text-blue-600 bg-blue-50 px-1 py-0.5 rounded w-fit mt-0.5 border border-blue-100">-${app.formatCurrency(c.periodPayments)}</span>` : `<span class="text-[9px] text-slate-300 font-medium mt-0.5">No activity</span>`)
-            ) : ''}
-          </div>
+          <span class="text-xs font-bold ${c.amount > 0 ? 'text-emerald-700' : 'text-slate-400'}">
+            ${app.formatCurrency(c.amount || 0)}
+          </span>
         </td>
         <td class="px-4 py-1 bg-slate-50/30 border-r border-slate-200">
           <div class="flex items-center justify-center gap-1.5">
