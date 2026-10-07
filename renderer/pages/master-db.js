@@ -127,8 +127,6 @@ const MasterDB = {
                 <tr>
                   <th class="px-2 py-2 text-center w-10 border-r border-slate-200">#</th>
                   <th class="px-3 py-2 border-r border-slate-200 min-w-[200px]">Medicine Name / Generic</th>
-                  <th class="px-2.5 py-2 border-r border-slate-200 min-w-[120px]">Company</th>
-                  <th class="px-2.5 py-2 border-r border-slate-200 text-center">Form</th>
                   <th class="px-2.5 py-2 border-r border-slate-200 text-center">Strength</th>
                   <th class="px-2 py-2 text-center border-r border-slate-200">Expiry</th>
                   <th class="px-2 py-2 text-center border-r border-slate-200">Shelf/Rack</th>
@@ -514,7 +512,7 @@ const MasterDB = {
 
     const tbody = document.getElementById('db-tbody');
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="13" class="px-4 py-8 text-center text-slate-400 font-medium text-xs"><div class="flex items-center justify-center gap-2"><div class="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div> Loading medicines...</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="11" class="px-4 py-8 text-center text-slate-400 font-medium text-xs"><div class="flex items-center justify-center gap-2"><div class="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div> Loading medicines...</div></td></tr>`;
     }
 
     try {
@@ -541,7 +539,7 @@ const MasterDB = {
     } catch(err) {
       console.error('Failed to fetch paginated products:', err);
       if (tbody) {
-        tbody.innerHTML = `<tr><td colspan="13" class="px-4 py-8 text-center text-rose-500 font-medium text-xs">Error loading data. Please try again.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="11" class="px-4 py-8 text-center text-rose-500 font-medium text-xs">Error loading data. Please try again.</td></tr>`;
       }
     }
   },
@@ -689,7 +687,7 @@ const MasterDB = {
     if (!tbody) return;
 
     if (!list || list.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="13" class="px-4 py-8 text-center text-slate-400 italic font-medium text-xs">No medicines found matching your search.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="11" class="px-4 py-8 text-center text-slate-400 italic font-medium text-xs">No medicines found matching your search.</td></tr>`;
       return;
     }
 
@@ -705,6 +703,9 @@ const MasterDB = {
       const stockVal = currentStock * tp;
       const displayName = p.medicine_name || p.item_name || 'Unnamed Medicine';
       const brandName = p.brand_name || '';
+
+      const catObj = (this.categories || []).find(c => c.id === p.slug);
+      const catName = p.dosage_form || (catObj ? catObj.label : '') || (p.slug ? (p.slug.charAt(0).toUpperCase() + p.slug.slice(1)) : '');
       
       let expBadge = `<span class="text-slate-600 font-bold">${p.expiry_date || '-'}</span>`;
       if (p.expiry_date) {
@@ -727,18 +728,12 @@ const MasterDB = {
 
           <!-- Medicine Name + Generic Formula -->
           <td class="px-3 py-1.5 border-r border-slate-100 min-w-[200px]">
-            <div class="font-black text-slate-900 leading-tight">${displayName} ${brandName && brandName !== displayName ? `<span class="text-slate-500 font-semibold text-[11px]">(${brandName})</span>` : ''}</div>
+            <div class="font-black text-slate-900 leading-tight">
+              <span>${displayName}</span>
+              ${brandName && brandName !== displayName ? `<span class="text-slate-500 font-semibold text-[11px] ml-1">(${brandName})</span>` : ''}
+              ${(this.currentCategory === 'all' && catName) ? `<span class="text-teal-700 font-bold text-[10.5px] ml-1">(${catName})</span>` : ''}
+            </div>
             ${p.generic_name ? `<div class="text-[10.5px] font-bold text-teal-600 mt-0.5">${p.generic_name}</div>` : ''}
-          </td>
-
-          <!-- Company -->
-          <td class="px-2.5 py-1.5 border-r border-slate-100 min-w-[120px]">
-            <span class="font-bold text-slate-700 text-[11px]">${p.company_name || '-'}</span>
-          </td>
-
-          <!-- Dosage Form -->
-          <td class="px-2.5 py-1.5 border-r border-slate-100 text-center">
-            <span class="inline-block px-1.5 py-0.5 rounded bg-teal-50 text-teal-800 font-bold text-[10.5px] border border-teal-200">${p.dosage_form || '-'}</span>
           </td>
 
           <!-- Strength -->
