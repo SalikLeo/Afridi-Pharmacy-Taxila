@@ -275,10 +275,6 @@ window.SalesForm = {
           <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
             <!-- Left: Quick Discount, Tax, Fees, Payment Channel & Items Count -->
             <div class="flex items-center gap-2.5 flex-wrap text-xs font-bold text-slate-700 w-full lg:w-auto">
-              <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-xl">
-                <span class="text-slate-400 text-[10px] uppercase font-black">Items:</span>
-                <span id="sf-items-count-badge" class="font-black text-slate-800">0 items (0 units)</span>
-              </div>
 
               <!-- More Bill Button with Dynamic Badge -->
               <button type="button" onclick="SalesForm.openMoreBillModal()" id="sf-more-bill-btn" class="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-xl transition-all text-xs font-black text-slate-700 cursor-pointer shadow-2xs active:scale-95" title="Add extra bill items (Checkup Fees, X-Ray, Tests, etc.)">
@@ -813,11 +809,7 @@ window.SalesForm = {
   // Tight Table Rendering with Editable MRP, Qty, and Discount
   renderCart() {
     const tbody = document.getElementById('sf-cart-tbody');
-    const badge = document.getElementById('sf-items-count-badge');
     if (!tbody) return;
-
-    const totalUnits = this.cart.reduce((s, i) => s + (parseFloat(i.qty) || 0), 0);
-    if (badge) badge.textContent = `${this.cart.length} items (${totalUnits} units)`;
 
     if (this.cart.length === 0) {
       tbody.innerHTML = `
