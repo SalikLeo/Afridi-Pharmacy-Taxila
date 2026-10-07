@@ -259,34 +259,34 @@ const MasterDB = {
                 </div>
                 <div>
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Dosage Form *</label>
-                  <input type="text" id="db-field-dosage_form" list="dosage-form-list" required placeholder="e.g. Tabs" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <input type="text" id="db-field-dosage_form" list="dosage-form-list" required placeholder="e.g. Tabs" oninput="MasterDB.onDosageFormInput(this.value)" onfocus="MasterDB.onDosageFormInput(this.value)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                   <datalist id="dosage-form-list">
-                    <option value="Tabs">
                     <option value="Caps">
-                    <option value="Syrup">
-                    <option value="Suspension">
-                    <option value="Inj">
-                    <option value="Inf">
-                    <option value="Drops">
-                    <option value="Eye Drops">
-                    <option value="Ear Drops">
                     <option value="Cream">
-                    <option value="Ointment">
+                    <option value="Drops">
+                    <option value="Ear Drops">
+                    <option value="Eye Drops">
                     <option value="Facewash">
-                    <option value="Soap">
-                    <option value="Liquid">
+                    <option value="Inf">
                     <option value="Inhaler">
+                    <option value="Inj">
+                    <option value="Liquid">
                     <option value="Nasal Drop">
                     <option value="Nasal Spray">
-                    <option value="Shampoo">
+                    <option value="Ointment">
                     <option value="Sachet">
+                    <option value="Shampoo">
+                    <option value="Soap">
+                    <option value="Suspension">
+                    <option value="Syrup">
+                    <option value="Tabs">
                     <option value="Topical">
                     <option value="Vaginal">
                   </datalist>
                 </div>
                 <div>
                   <label class="block text-xs font-black text-slate-700 uppercase mb-1">Company</label>
-                  <input type="text" id="db-field-company_name" list="db-companies-datalist" placeholder="Company name" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
+                  <input type="text" id="db-field-company_name" list="db-companies-datalist" placeholder="Company name" oninput="MasterDB.onCompanyInput(this.value)" onfocus="MasterDB.onCompanyInput(this.value)" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-teal-500 outline-none">
                   <datalist id="db-companies-datalist"></datalist>
                 </div>
               </div>
@@ -816,6 +816,56 @@ const MasterDB = {
     }
   },
 
+  dosageFormList: [
+    "Caps", "Cream", "Drops", "Ear Drops", "Eye Drops", "Facewash",
+    "Inf", "Inhaler", "Inj", "Liquid", "Nasal Drop", "Nasal Spray",
+    "Ointment", "Sachet", "Shampoo", "Soap", "Suspension", "Syrup",
+    "Tabs", "Topical", "Vaginal"
+  ],
+
+  sortListByPrefix(list, query) {
+    if (!query) return [...list].sort((a, b) => a.localeCompare(b));
+    const starts = [];
+    const wordStarts = [];
+    const contains = [];
+    const others = [];
+
+    for (const item of list) {
+      const lower = item.toLowerCase();
+      if (lower.startsWith(query)) {
+        starts.push(item);
+      } else if (lower.split(/\s+/).some(w => w.startsWith(query))) {
+        wordStarts.push(item);
+      } else if (lower.includes(query)) {
+        contains.push(item);
+      } else {
+        others.push(item);
+      }
+    }
+    starts.sort((a, b) => a.localeCompare(b));
+    wordStarts.sort((a, b) => a.localeCompare(b));
+    contains.sort((a, b) => a.localeCompare(b));
+    others.sort((a, b) => a.localeCompare(b));
+    return [...starts, ...wordStarts, ...contains, ...others];
+  },
+
+  onDosageFormInput(val) {
+    const listEl = document.getElementById('dosage-form-list');
+    if (!listEl) return;
+    const q = (val || '').toLowerCase().trim();
+    const sorted = this.sortListByPrefix(this.dosageFormList, q);
+    listEl.innerHTML = sorted.map(item => `<option value="${item}">`).join('');
+  },
+
+  onCompanyInput(val) {
+    const listEl = document.getElementById('db-companies-datalist');
+    if (!listEl) return;
+    const q = (val || '').toLowerCase().trim();
+    const compNames = (this.companies || []).map(c => c.name);
+    const sorted = this.sortListByPrefix(compNames, q);
+    listEl.innerHTML = sorted.map(item => `<option value="${item}">`).join('');
+  },
+
   autoGenerateCode() {
     const catSlug = this._editingCatSlug || this.currentCategory;
     const prefix = (catSlug !== 'all' ? catSlug : 'med').substring(0, 3).toUpperCase();
@@ -862,6 +912,7 @@ const MasterDB = {
     const formInput = document.getElementById('db-field-dosage_form');
     if (formInput) {
       formInput.value = data ? (data.dosage_form || '') : (this._editingCatSlug && this._editingCatSlug !== 'all' ? (this.categories.find(c => c.id === this._editingCatSlug)?.label || '') : '');
+      this.onDosageFormInput(formInput.value);
     }
     document.getElementById('db-field-strength').value = data ? (data.strength || '') : '';
     const packingInput = document.getElementById('db-field-packing');
@@ -870,12 +921,11 @@ const MasterDB = {
     if (catCodeInput) catCodeInput.value = data ? (data.category || '') : '';
     
     // Company selection
-    const compDatalist = document.getElementById('db-companies-datalist');
-    if (compDatalist) {
-      compDatalist.innerHTML = (this.companies || []).map(c => `<option value="${c.name}">`).join('');
-    }
     const compInput = document.getElementById('db-field-company_name');
-    if (compInput) compInput.value = data ? (data.company_name || '') : '';
+    if (compInput) {
+      compInput.value = data ? (data.company_name || '') : '';
+      this.onCompanyInput(compInput.value);
+    }
 
     // Pricing
     document.getElementById('db-cost').value = data ? (data.trade_price ?? data.cost_price ?? '') : '';

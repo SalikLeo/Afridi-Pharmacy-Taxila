@@ -834,16 +834,31 @@ function getPaginatedProducts(options = {}) {
     const totalCostValue = stats.totalCostValue || 0;
     const totalRetailValue = stats.totalRetailValue || 0;
 
+    let orderSql = 'ORDER BY COALESCE(p.medicine_name, p.item_name) ASC';
+    const dataParams = [...params];
+    if (qClean) {
+      orderSql = `ORDER BY 
+        CASE 
+          WHEN LOWER(COALESCE(p.medicine_name, p.item_name)) LIKE ? THEN 0
+          WHEN LOWER(COALESCE(p.generic_name, '')) LIKE ? THEN 1
+          WHEN LOWER(COALESCE(p.brand_name, '')) LIKE ? THEN 2
+          ELSE 3
+        END ASC,
+        COALESCE(p.medicine_name, p.item_name) ASC`;
+      const qPrefix = `${qClean.toLowerCase()}%`;
+      dataParams.push(qPrefix, qPrefix, qPrefix);
+    }
+
     const dataSql = `
       SELECT ${selectColumns(cat)}
       FROM products_${cat} p
       LEFT JOIN favorites f ON f.category_slug = '${cat}' AND f.product_id = p.id
       LEFT JOIN companies c ON c.id = p.company_id
       ${whereSql}
-      ORDER BY COALESCE(p.medicine_name, p.item_name) ASC
+      ${orderSql}
       LIMIT ? OFFSET ?
     `;
-    const items = db.prepare(dataSql).all(...params, validPageSize, offset);
+    const items = db.prepare(dataSql).all(...dataParams, validPageSize, offset);
 
     return {
       items,
@@ -926,12 +941,27 @@ function getPaginatedProducts(options = {}) {
   const totalCostValue = stats.totalCostValue || 0;
   const totalRetailValue = stats.totalRetailValue || 0;
 
+  let unionOrderSql = 'ORDER BY COALESCE(medicine_name, item_name) ASC';
+  const unionDataParams = [...unionParams];
+  if (qClean) {
+    unionOrderSql = `ORDER BY 
+      CASE 
+        WHEN LOWER(COALESCE(medicine_name, item_name)) LIKE ? THEN 0
+        WHEN LOWER(COALESCE(generic_name, '')) LIKE ? THEN 1
+        WHEN LOWER(COALESCE(brand_name, '')) LIKE ? THEN 2
+        ELSE 3
+      END ASC,
+      COALESCE(medicine_name, item_name) ASC`;
+    const qPrefix = `${qClean.toLowerCase()}%`;
+    unionDataParams.push(qPrefix, qPrefix, qPrefix);
+  }
+
   const dataSql = `
     SELECT * FROM (${fullUnionSql})
-    ORDER BY COALESCE(medicine_name, item_name) ASC
+    ${unionOrderSql}
     LIMIT ? OFFSET ?
   `;
-  const items = db.prepare(dataSql).all(...unionParams, validPageSize, offset);
+  const items = db.prepare(dataSql).all(...unionDataParams, validPageSize, offset);
 
   return {
     items,
@@ -1039,9 +1069,9 @@ function searchAllProducts(query, companyId = null) {
     return results.slice(0, 80);
   }
 
-  // 1. PREFIX SEARCH (Show items starting with typed characters, ordered A-Z)
-  const prefixParam = `${qClean}%`;
-  let prefixResults = [];
+  // Prefix & Substring search with priority scoring
+  const fuzzyParam = `%${qClean}%`;
+  let allResults = [];
 
   for (const s of schemas) {
     const conds = [];
@@ -1052,95 +1082,91 @@ function searchAllProducts(query, companyId = null) {
       params.push(companyId);
     }
 
-    const nameMatches = [];
+    const matches = [];
     if (s.hasMedName) {
-      nameMatches.push('p.medicine_name LIKE ?');
-      params.push(prefixParam);
+      matches.push('p.medicine_name LIKE ?');
+      params.push(fuzzyParam);
     }
     if (s.hasItemName) {
-      nameMatches.push('p.item_name LIKE ?');
-      params.push(prefixParam);
+      matches.push('p.item_name LIKE ?');
+      params.push(fuzzyParam);
     }
     if (s.hasBrandName) {
-      nameMatches.push('p.brand_name LIKE ?');
-      params.push(prefixParam);
+      matches.push('p.brand_name LIKE ?');
+      params.push(fuzzyParam);
     }
-
-    if (nameMatches.length === 0) continue;
-    conds.push(`(${nameMatches.join(' OR ')})`);
-
-    const sql = `
-      SELECT p.*, COALESCE(c.name, p.company_name) as company_name, '${s.cat}' as slug 
-      FROM products_${s.cat} p 
-      LEFT JOIN companies c ON c.id = p.company_id
-      WHERE ${conds.join(' AND ')}
-      ORDER BY ${s.nameCol} ASC
-      LIMIT 25
-    `;
-    try {
-      const rows = db.prepare(sql).all(...params);
-      prefixResults.push(...rows);
-    } catch (e) {}
-  }
-
-  // Sort globally in alphabetical order (A to Z)
-  prefixResults.sort((a, b) => {
-    const nameA = (a.medicine_name || a.item_name || '').toUpperCase();
-    const nameB = (b.medicine_name || b.item_name || '').toUpperCase();
-    return nameA.localeCompare(nameB);
-  });
-
-  // If prefix matches found (e.g. typing "a"), return ONLY items starting with "a"
-  if (prefixResults.length > 0) {
-    return prefixResults.slice(0, 60);
-  }
-
-  // 2. FALLBACK: If no medicine name starts with the query, search generic formula / barcode
-  let fallbackResults = [];
-
-  for (const s of schemas) {
-    const conds = [];
-    const params = [];
-
-    if (companyId && s.hasCompanyId) {
-      conds.push('p.company_id = ?');
-      params.push(companyId);
-    }
-
-    const fallbackMatches = [];
     if (s.hasGenericName) {
-      fallbackMatches.push('p.generic_name LIKE ?');
-      params.push(prefixParam);
+      matches.push('p.generic_name LIKE ?');
+      params.push(fuzzyParam);
     }
     if (s.hasMedCode) {
-      fallbackMatches.push('p.medicine_code LIKE ?');
-      params.push(prefixParam);
+      matches.push('p.medicine_code LIKE ?');
+      params.push(fuzzyParam);
     }
 
-    if (fallbackMatches.length === 0) continue;
-    conds.push(`(${fallbackMatches.join(' OR ')})`);
+    if (matches.length === 0) continue;
+    conds.push(`(${matches.join(' OR ')})`);
 
     const sql = `
       SELECT p.*, COALESCE(c.name, p.company_name) as company_name, '${s.cat}' as slug 
       FROM products_${s.cat} p 
       LEFT JOIN companies c ON c.id = p.company_id
       WHERE ${conds.join(' AND ')}
-      ORDER BY ${s.nameCol} ASC
-      LIMIT 25
+      LIMIT 40
     `;
     try {
       const rows = db.prepare(sql).all(...params);
-      fallbackResults.push(...rows);
+      allResults.push(...rows);
     } catch (e) {}
   }
 
-  fallbackResults.sort((a, b) => {
-    const nameA = (a.medicine_name || a.item_name || '').toUpperCase();
-    const nameB = (b.medicine_name || b.item_name || '').toUpperCase();
-    return nameA.localeCompare(nameB);
+  // Deduplicate and rank items so items starting with typed query are ALWAYS first
+  const qLower = qClean.toLowerCase();
+  const seen = new Set();
+  const unique = [];
+  for (const item of allResults) {
+    const key = `${item.slug || ''}-${item.id}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(item);
+    }
+  }
+
+  unique.sort((a, b) => {
+    const aName = (a.medicine_name || a.item_name || '').toLowerCase();
+    const bName = (b.medicine_name || b.item_name || '').toLowerCase();
+    const aGen = (a.generic_name || '').toLowerCase();
+    const bGen = (b.generic_name || '').toLowerCase();
+
+    // Priority 0: Medicine Name starts with query
+    const aStarts = aName.startsWith(qLower);
+    const bStarts = bName.startsWith(qLower);
+    if (aStarts && !bStarts) return -1;
+    if (!aStarts && bStarts) return 1;
+
+    // Priority 1: Word in medicine name starts with query
+    const aWord = aName.split(/\s+/).some(w => w.startsWith(qLower));
+    const bWord = bName.split(/\s+/).some(w => w.startsWith(qLower));
+    if (aWord && !bWord) return -1;
+    if (!aWord && bWord) return 1;
+
+    // Priority 2: Generic formula starts with query
+    const aGenStarts = aGen.startsWith(qLower);
+    const bGenStarts = bGen.startsWith(qLower);
+    if (aGenStarts && !bGenStarts) return -1;
+    if (!aGenStarts && bGenStarts) return 1;
+
+    // Priority 3: Word in generic formula starts with query
+    const aGenWord = aGen.split(/\s+/).some(w => w.startsWith(qLower));
+    const bGenWord = bGen.split(/\s+/).some(w => w.startsWith(qLower));
+    if (aGenWord && !bGenWord) return -1;
+    if (!aGenWord && bGenWord) return 1;
+
+    // Alphabetical fallback
+    return aName.localeCompare(bName);
   });
 
-  return fallbackResults.slice(0, 60);
+  return unique.slice(0, 60);
 }
 
 function toggleFavorite(category, id) {

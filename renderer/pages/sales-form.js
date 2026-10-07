@@ -558,12 +558,36 @@ window.SalesForm = {
       const cartKeys = new Set(this.cart.map(c => `${c.slug || 'tablet'}-${c.id}`));
       let filtered = (results || []).filter(item => !cartKeys.has(`${item.slug || 'tablet'}-${item.id}`));
 
-      // Strictly ensure global alphabetical order (A to Z)
-      filtered.sort((a, b) => {
-        const nameA = (a.medicine_name || a.item_name || '').toUpperCase();
-        const nameB = (b.medicine_name || b.item_name || '').toUpperCase();
-        return nameA.localeCompare(nameB);
-      });
+      // Prioritize items starting with query, then word starts, then generic, then alphabetical
+      const qClean = (query || '').toLowerCase().trim();
+      if (qClean) {
+        filtered.sort((a, b) => {
+          const aName = (a.medicine_name || a.item_name || '').toLowerCase();
+          const bName = (b.medicine_name || b.item_name || '').toLowerCase();
+          const aStarts = aName.startsWith(qClean);
+          const bStarts = bName.startsWith(qClean);
+          if (aStarts && !bStarts) return -1;
+          if (!aStarts && bStarts) return 1;
+
+          const aWordStarts = aName.split(/\s+/).some(w => w.startsWith(qClean));
+          const bWordStarts = bName.split(/\s+/).some(w => w.startsWith(qClean));
+          if (aWordStarts && !bWordStarts) return -1;
+          if (!aWordStarts && bWordStarts) return 1;
+
+          const aGen = (a.generic_name || '').toLowerCase().startsWith(qClean);
+          const bGen = (b.generic_name || '').toLowerCase().startsWith(qClean);
+          if (aGen && !bGen) return -1;
+          if (!aGen && bGen) return 1;
+
+          return aName.localeCompare(bName);
+        });
+      } else {
+        filtered.sort((a, b) => {
+          const nameA = (a.medicine_name || a.item_name || '').toUpperCase();
+          const nameB = (b.medicine_name || b.item_name || '').toUpperCase();
+          return nameA.localeCompare(nameB);
+        });
+      }
 
       this.searchResults = filtered.slice(0, 50);
       this.selectedSearchIndex = 0; // Default first item highlighted!

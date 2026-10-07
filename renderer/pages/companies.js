@@ -655,6 +655,19 @@ window.Companies = {
 
     // Sort
     filtered.sort((a, b) => {
+      if (term) {
+        const aName = (a.name || '').toLowerCase();
+        const bName = (b.name || '').toLowerCase();
+        const aStarts = aName.startsWith(term);
+        const bStarts = bName.startsWith(term);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+
+        const aWordStarts = aName.split(/\s+/).some(w => w.startsWith(term));
+        const bWordStarts = bName.split(/\s+/).some(w => w.startsWith(term));
+        if (aWordStarts && !bWordStarts) return -1;
+        if (!aWordStarts && bWordStarts) return 1;
+      }
       if (sortBy === 'balance_desc') return (b.amount || 0) - (a.amount || 0);
       if (sortBy === 'balance_asc') return (a.amount || 0) - (b.amount || 0);
       if (sortBy === 'name_asc') return (a.name || '').localeCompare(b.name || '');
@@ -1704,6 +1717,27 @@ window.Companies = {
       return true;
     });
 
+    if (query) {
+      filtered.sort((a, b) => {
+        const aName = (a.entityName || a.company_name || a.supplier_name || a.name || '').toLowerCase();
+        const bName = (b.entityName || b.company_name || b.supplier_name || b.name || '').toLowerCase();
+        const aInv = (a.invoice_no ? String(a.invoice_no) : '').toLowerCase();
+        const bInv = (b.invoice_no ? String(b.invoice_no) : '').toLowerCase();
+
+        const aStarts = aName.startsWith(query) || aInv.startsWith(query);
+        const bStarts = bName.startsWith(query) || bInv.startsWith(query);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+
+        const aWordStarts = aName.split(/\s+/).some(w => w.startsWith(query));
+        const bWordStarts = bName.split(/\s+/).some(w => w.startsWith(query));
+        if (aWordStarts && !bWordStarts) return -1;
+        if (!aWordStarts && bWordStarts) return 1;
+
+        return 0;
+      });
+    }
+
     this.renderTransactionsList(filtered);
     this.updateTransactionsStats(filtered);
     this.updateTxnClearPeriodButton();
@@ -1933,8 +1967,32 @@ window.Companies = {
     // Search ALL products across all companies
     const items = await window.api.searchAllProducts(query);
     
-    // Sort items by name A-Z
-    items.sort((a, b) => (a.item_name || '').localeCompare(b.item_name || ''));
+    // Prioritize items starting with query, then word starts, then generic, then alphabetical
+    const qClean = (query || '').toLowerCase().trim();
+    if (qClean) {
+      items.sort((a, b) => {
+        const aName = (a.item_name || a.medicine_name || '').toLowerCase();
+        const bName = (b.item_name || b.medicine_name || '').toLowerCase();
+        const aStarts = aName.startsWith(qClean);
+        const bStarts = bName.startsWith(qClean);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+
+        const aWordStarts = aName.split(/\s+/).some(w => w.startsWith(qClean));
+        const bWordStarts = bName.split(/\s+/).some(w => w.startsWith(qClean));
+        if (aWordStarts && !bWordStarts) return -1;
+        if (!aWordStarts && bWordStarts) return 1;
+
+        const aGen = (a.generic_name || '').toLowerCase().startsWith(qClean);
+        const bGen = (b.generic_name || '').toLowerCase().startsWith(qClean);
+        if (aGen && !bGen) return -1;
+        if (!aGen && bGen) return 1;
+
+        return aName.localeCompare(bName);
+      });
+    } else {
+      items.sort((a, b) => (a.item_name || '').localeCompare(b.item_name || ''));
+    }
 
     // Filter out items already selected in other rows
     const selectedKeys = new Set();

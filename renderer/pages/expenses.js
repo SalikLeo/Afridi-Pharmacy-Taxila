@@ -401,6 +401,21 @@ const Expenses = {
     }
 
     filtered.sort((a, b) => {
+        if (query) {
+            const aDesc = (a.description || '').toLowerCase();
+            const bDesc = (b.description || '').toLowerCase();
+            const aCat = (a.category || '').toLowerCase();
+            const bCat = (b.category || '').toLowerCase();
+            const aStarts = aDesc.startsWith(query) || aCat.startsWith(query);
+            const bStarts = bDesc.startsWith(query) || bCat.startsWith(query);
+            if (aStarts && !bStarts) return -1;
+            if (!aStarts && bStarts) return 1;
+
+            const aWordStarts = aDesc.split(/\s+/).some(w => w.startsWith(query));
+            const bWordStarts = bDesc.split(/\s+/).some(w => w.startsWith(query));
+            if (aWordStarts && !bWordStarts) return -1;
+            if (!aWordStarts && bWordStarts) return 1;
+        }
         if (sortBy === 'date_desc') return (new Date(b.date || b.created_at) - new Date(a.date || a.created_at)) || (b.id - a.id);
         if (sortBy === 'date_asc') return (new Date(a.date || a.created_at) - new Date(b.date || b.created_at)) || (a.id - b.id);
         if (sortBy === 'amount_desc') return b.amount - a.amount;

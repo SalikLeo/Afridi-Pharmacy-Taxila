@@ -180,6 +180,19 @@ const Employees = {
 
     // Sort
     filtered.sort((a, b) => {
+        if (query) {
+            const aName = (a.full_name || '').toLowerCase();
+            const bName = (b.full_name || '').toLowerCase();
+            const aStarts = aName.startsWith(query);
+            const bStarts = bName.startsWith(query);
+            if (aStarts && !bStarts) return -1;
+            if (!aStarts && bStarts) return 1;
+
+            const aWordStarts = aName.split(/\s+/).some(w => w.startsWith(query));
+            const bWordStarts = bName.split(/\s+/).some(w => w.startsWith(query));
+            if (aWordStarts && !bWordStarts) return -1;
+            if (!aWordStarts && bWordStarts) return 1;
+        }
         if (sortBy === 'name_asc') return a.full_name.localeCompare(b.full_name);
         if (sortBy === 'name_desc') return b.full_name.localeCompare(a.full_name);
         if (sortBy === 'salary_desc') return b.salary - a.salary;
