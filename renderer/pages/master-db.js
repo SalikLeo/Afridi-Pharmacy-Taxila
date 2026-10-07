@@ -378,19 +378,41 @@ const MasterDB = {
               <input type="number" id="add-stock-qty" min="1" step="1" placeholder="Quantity count" required oninput="MasterDB.calcAddStockTotal()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 font-black text-center text-teal-800 text-sm focus:bg-white focus:border-teal-500 outline-none">
             </div>
 
-            <div>
-              <label class="block text-[10px] font-black text-slate-700 uppercase mb-1">New Expiry Date</label>
-              <input type="date" id="add-stock-expiry" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 outline-none cursor-pointer">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[10px] font-black text-slate-700 uppercase mb-1">Company / Supplier</label>
+                <select id="add-stock-company" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 outline-none cursor-pointer">
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-slate-700 uppercase mb-1">New Expiry Date</label>
+                <input type="date" id="add-stock-expiry" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 outline-none cursor-pointer">
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-[10px] font-black text-rose-700 uppercase mb-1">Trade Price (Cost / TP)</label>
-                <input type="number" id="add-stock-cost" min="0" step="any" placeholder="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 outline-none">
+                <input type="number" id="add-stock-cost" min="0" step="any" placeholder="0" oninput="MasterDB.calcAddStockTotal()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 outline-none">
               </div>
               <div>
                 <label class="block text-[10px] font-black text-emerald-700 uppercase mb-1">Retail Price (MRP)</label>
                 <input type="number" id="add-stock-retail-sale" min="0" step="any" placeholder="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 outline-none">
+              </div>
+            </div>
+
+            <!-- Total Cost & Paid Amount -->
+            <div class="bg-slate-50/80 p-2.5 rounded-xl border border-slate-200 flex items-center justify-between gap-3">
+              <div>
+                <span class="text-[9.5px] font-black text-slate-400 uppercase block">Total Cost</span>
+                <span class="text-xs font-black text-slate-800 tabular-nums" id="add-stock-total-cost">Rs. 0</span>
+              </div>
+              <div class="w-40">
+                <label class="block text-[9.5px] font-black text-emerald-700 uppercase mb-0.5 text-right">Paid Amount</label>
+                <div class="relative">
+                  <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] font-bold">Rs.</span>
+                  <input type="number" id="add-stock-paid" min="0" step="any" placeholder="0" oninput="if(this.value === '') { MasterDB._paidAmountManuallyEdited = false; } else { MasterDB._paidAmountManuallyEdited = true; }" class="w-full bg-white border border-slate-200 rounded-lg pl-7 pr-2 py-1 text-xs font-black text-right text-emerald-600 focus:border-emerald-500 outline-none tabular-nums shadow-2xs">
+                </div>
               </div>
             </div>
 
@@ -1206,10 +1228,15 @@ const MasterDB = {
     }
   },
 
-  openAddStockModal(itemId, catSlug = null) {
+  async openAddStockModal(itemId, catSlug = null) {
     let item = (this.currentItems || []).find(p => p.id === itemId);
     if (!item) return;
     this._stockItem = { ...item, slug: catSlug || item.slug || this.currentCategory };
+    this._paidAmountManuallyEdited = false;
+
+    if (!this.companies || this.companies.length === 0) {
+      this.companies = await window.api.getCompanies() || [];
+    }
 
     document.getElementById('add-stock-item-id').value = item.id;
     document.getElementById('add-stock-modal-title').textContent = `Add Stock: ${item.item_name}`;
@@ -1219,6 +1246,32 @@ const MasterDB = {
     document.getElementById('add-stock-expiry').value = item.expiry_date || '';
     document.getElementById('add-stock-cost').value = item.cost_price || '';
     document.getElementById('add-stock-retail-sale').value = item.retail_price || '';
+
+    // Populate Company Selector
+    const compSelect = document.getElementById('add-stock-company');
+    if (compSelect) {
+      let optionsHtml = '<option value="">-- Choose Company / Supplier --</option>';
+      let foundComp = false;
+      (this.companies || []).forEach(c => {
+        let isSel = false;
+        if (item.company_id && c.id == item.company_id) {
+          isSel = true;
+          foundComp = true;
+        } else if (!foundComp && item.company_name && c.name.trim().toLowerCase() === item.company_name.trim().toLowerCase()) {
+          isSel = true;
+          foundComp = true;
+        }
+        optionsHtml += `<option value="${c.id}" ${isSel ? 'selected' : ''}>${c.name}</option>`;
+      });
+
+      if (!foundComp && item.company_name && item.company_name.trim() !== '-' && item.company_name.trim() !== '') {
+        optionsHtml += `<option value="custom:${item.company_name.trim()}" selected>${item.company_name.trim()}</option>`;
+      }
+      compSelect.innerHTML = optionsHtml;
+    }
+
+    const paidEl = document.getElementById('add-stock-paid');
+    if (paidEl) paidEl.value = '';
 
     this.calcAddStockTotal();
 
@@ -1236,8 +1289,27 @@ const MasterDB = {
     const item = this._stockItem;
     const current = item ? (item.current_stock || 0) : 0;
     const add = parseInt(document.getElementById('add-stock-qty')?.value) || 0;
+    const cost = parseFloat(document.getElementById('add-stock-cost')?.value) || 0;
     const newValEl = document.getElementById('add-stock-new-val');
     if (newValEl) newValEl.textContent = `${current + add}`;
+
+    const totalCost = add > 0 && cost > 0 ? (add * cost) : 0;
+    const totalCostEl = document.getElementById('add-stock-total-cost');
+    if (totalCostEl) {
+      totalCostEl.textContent = `Rs. ${totalCost.toLocaleString()}`;
+    }
+
+    const paidEl = document.getElementById('add-stock-paid');
+    if (paidEl) {
+      if (!this._paidAmountManuallyEdited) {
+        paidEl.value = totalCost > 0 ? totalCost : '';
+      } else {
+        const currentPaid = parseFloat(paidEl.value) || 0;
+        if (currentPaid > totalCost) {
+          paidEl.value = totalCost > 0 ? totalCost : '';
+        }
+      }
+    }
   },
 
   closeAddStockModal() {
@@ -1248,6 +1320,7 @@ const MasterDB = {
       modal.classList.add('hidden');
       modal.classList.remove('flex');
       this._stockItem = null;
+      this._paidAmountManuallyEdited = false;
     }, 200);
   },
 
@@ -1263,22 +1336,45 @@ const MasterDB = {
     const cost = parseFloat(document.getElementById('add-stock-cost')?.value) || item.cost_price;
     const retail = parseFloat(document.getElementById('add-stock-retail-sale')?.value) || item.retail_price;
 
+    const totalCost = addQty * cost;
+    const paidEl = document.getElementById('add-stock-paid');
+    let paidAmount = parseFloat(paidEl?.value);
+    if (isNaN(paidAmount) || paidAmount < 0) {
+      paidAmount = totalCost; // Default full
+    }
+    paidAmount = Math.max(0, Math.min(paidAmount, totalCost));
+
     app.showLoading();
     try {
       const cat = item.slug || (this.currentCategory !== 'all' ? this.currentCategory : 'tablet');
-      const updated = {
-        ...item,
-        current_stock: (item.current_stock || 0) + addQty,
-        expiry_date: expiry,
-        cost_price: cost,
-        retail_price: retail
-      };
-      await window.api.updateProduct(cat, item.id, updated);
 
-      // Record transaction in transactions log
-      try {
-        let companies = await window.api.getCompanies() || [];
-        let company = null;
+      // Resolve Company
+      let companies = await window.api.getCompanies() || [];
+      const companySelect = document.getElementById('add-stock-company');
+      const selectedCompanyId = companySelect ? companySelect.value : '';
+      let company = null;
+
+      if (selectedCompanyId) {
+        if (selectedCompanyId.startsWith('custom:')) {
+          const customName = selectedCompanyId.replace('custom:', '').trim();
+          company = companies.find(c => c.name.trim().toLowerCase() === customName.toLowerCase());
+          if (!company) {
+            const newCompId = await window.api.saveCompany({
+              name: customName,
+              contact_person: '',
+              phone: '',
+              address: '',
+              amount: 0
+            });
+            companies = await window.api.getCompanies() || [];
+            company = companies.find(c => c.id == newCompId) || { id: newCompId, name: customName, amount: 0 };
+          }
+        } else {
+          company = companies.find(c => c.id == selectedCompanyId);
+        }
+      }
+
+      if (!company) {
         if (item.company_id) {
           company = companies.find(c => c.id == item.company_id);
         }
@@ -1302,9 +1398,23 @@ const MasterDB = {
             company = companies.find(c => c.id == newCompId) || { id: newCompId, name: compName, amount: 0 };
           }
         }
+      }
 
+      // Update product with new stock and assigned company
+      const updated = {
+        ...item,
+        company_id: company ? company.id : item.company_id,
+        company_name: company ? company.name : item.company_name,
+        current_stock: (item.current_stock || 0) + addQty,
+        expiry_date: expiry,
+        cost_price: cost,
+        retail_price: retail
+      };
+      await window.api.updateProduct(cat, item.id, updated);
+
+      // Record transaction in transactions log
+      try {
         if (company && company.id) {
-          const totalCost = addQty * cost;
           const nextNoKey = 'next-invoice-no-companies';
           let nextNo = window.storage.get(nextNoKey);
           if (nextNo === null) {
@@ -1318,7 +1428,8 @@ const MasterDB = {
 
           const txnKey = `companies-${company.id}-transactions`;
           const transactions = window.storage.get(txnKey) || [];
-          const newBalance = (company.amount || 0) + totalCost;
+          const netImpact = totalCost - paidAmount;
+          const newBalance = (company.amount || 0) + netImpact;
 
           const newTxn = {
             id: Date.now().toString(),
@@ -1328,8 +1439,8 @@ const MasterDB = {
             amount: totalCost,
             subtotal: totalCost,
             discount: 0,
-            paid: 0,
-            description: `Stock Added: ${item.item_name} (${addQty} units @ Rs. ${cost})`,
+            paid: paidAmount,
+            description: `Stock Added: ${item.item_name} (${addQty} units @ Rs. ${cost})${paidAmount > 0 ? ` (Paid: Rs. ${paidAmount})` : ''}`,
             items: [{
               id: item.id,
               slug: cat,
