@@ -232,10 +232,7 @@ window.SalesForm = {
             <!-- Patient Name (Takes 3 cols) -->
             <div class="lg:col-span-3 relative">
               <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
-              <input type="text" id="sf-cust-name" list="sf-customers-list" oninput="SalesForm.onCustomerInput(this.value)" value="${this.customerName || ''}" placeholder="Patient Name (e.g. Walk-in)" class="w-full h-10 pl-8 pr-2 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 outline-none transition-all">
-              <datalist id="sf-customers-list">
-                ${this.customers.filter(c => (!c.name.startsWith('Walk-in') && !c.name.startsWith('Customer-')) || Math.abs(c.amount || 0) > 0.01).map(c => `<option value="${c.name}">${c.phone || ''}</option>`).join('')}
-              </datalist>
+              <input type="text" id="sf-cust-name" autocomplete="off" oninput="SalesForm.onCustomerInput(this.value)" value="${this.customerName || ''}" placeholder="Patient Name (e.g. Walk-in)" class="w-full h-10 pl-8 pr-2 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:border-teal-500 outline-none transition-all">
             </div>
 
             <!-- Patient Phone (Takes 2 cols) -->

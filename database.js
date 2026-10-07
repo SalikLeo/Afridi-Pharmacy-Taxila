@@ -84,6 +84,11 @@ function migrateOldSettings() {
         });
       }
     } catch(err) {}
+
+    // Remove legacy/test dummy customers
+    try {
+      db.exec(`DELETE FROM customers WHERE name IN ('AL-SHIFA CLINIC & PHARMACY', 'MALIK PHARMACY & GENERAL', 'SAJJAD MEDICAL STOR')`);
+    } catch(e) {}
   } catch (e) {
     console.error("Failed to migrate settings:", e);
   }
